@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codeforces Analytics Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #2c2c44;
+            --text-color: #e0e0e0;
+            --accent-color: #00bcd4;
+            --secondary-accent: #f73859;
+            --success-color: #4CAF50;
+            --danger-color: #ff5252;
+            --warning-color: #ff9800;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: rgba(44, 44, 68, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* NEW: Return Button Style */
+        .nav-link {
+            color: #bbb;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            border-color: var(--accent-color);
+            background-color: rgba(0, 188, 212, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* --- Main Content --- */
+        main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Analyze Section (Search) --- */
+        .analyze-section {
+            background: linear-gradient(135deg, #2c2c44 0%, #202033 100%);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .analyze-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: rgba(0,0,0,0.3);
+            color: white;
+            width: 220px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary:hover:not(:disabled) { background-color: #00acc1; transform: translateY(-2px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- DEEP DIVE DASHBOARD STYLES --- */
+        #contestDeepDive {
+            width: 100%;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .contest-header-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .contest-title-large {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .problems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .problem-card {
+            background-color: #26263b;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 188, 212, 0.15);
+            border-color: var(--accent-color);
+            background-color: #2d2d45;
+        }
+
+        .problem-index {
+            font-size: 2rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.05);
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            transition: color 0.3s;
+        }
+        .problem-card:hover .problem-index { color: var(--accent-color); }
+
+        .problem-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+            margin-right: 30px;
+            z-index: 2;
+        }
+
+        .problem-rating {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .problem-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .tag-pill {
+            font-size: 0.7rem;
+            background-color: rgba(0,0,0,0.3);
+            color: #bbb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Difficulty Colors */
+        .diff-gray { color: #808080; }
+        .diff-green { color: #4CAF50; }
+        .diff-cyan { color: #03A9F4; }
+        .diff-blue { color: #0000FF; }
+        .diff-violet { color: #AA00AA; }
+        .diff-orange { color: #FF8C00; }
+        .diff-red { color: #FF0000; }
+
+        /* --- General Table Styles --- */
+        .tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn.active { color: var(--accent-color); }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+
+        .table-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #444; }
+        th { color: var(--accent-color); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        tbody tr:hover { background-color: #353550; }
+
+        .contest-link { color: var(--text-color); text-decoration: none; font-weight: 600; }
+        .contest-link:hover { color: var(--accent-color); text-decoration: underline; }
+
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .status-before { background-color: rgba(0, 188, 212, 0.15); color: var(--accent-color); }
+        .status-coding { background-color: rgba(76, 175, 80, 0.15); color: var(--success-color); }
+        .status-finished { background-color: rgba(158, 158, 158, 0.15); color: #aaa; }
+
+        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 25px; }
+        .page-btn { background-color: var(--card-color); color: var(--text-color); border: 1px solid #444; padding: 8px 16px; border-radius: 5px; cursor: pointer; }
+        .page-btn:hover:not(:disabled) { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            z-index: 2000; display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background-color: #202033; width: 90%; max-width: 900px; height: 80vh;
+            border-radius: 15px; padding: 30px; display: flex; flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 1px solid #444;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .close-modal { background: none; border: none; color: #aaa; font-size: 2rem; cursor: pointer; }
+        .close-modal:hover { color: #fff; }
+        .modal-body { flex-grow: 1; overflow-y: auto; }
+        .rating-up { color: var(--success-color); font-weight: bold; }
+        .rating-down { color: var(--danger-color); font-weight: bold; }
+        .rating-neutral { color: #888; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand"><span>Codeforces Analytics 🏆</span></div>
+        <a href="index.html" class="nav-link">
+            Return to Profile 🏠
+        </a>
+    </header>
+
+    <main>
+        <section class="analyze-section">
+            <div class="search-container">
+                <div class="analyze-title">🔍 Analyze Contest</div>
+                <div class="search-box">
+                    <input type="number" id="contestIdInput" class="search-input" placeholder="Enter Contest ID (e.g., 2050)">
+                    <button class="btn-primary" onclick="searchContest()">Analyze</button>
+                </div>
+            </div>
+
+            <div id="searchError" style="display:none; color: var(--danger-color); padding: 10px; background: rgba(255, 82, 82, 0.1); border-radius: 6px;"></div>
+
+            <div id="contestDeepDive">
+                <div class="contest-header-card" id="contestHeader">
+                    </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <h3 style="color: #aaa; font-size: 1rem;">Problems Set</h3>
+                    <span style="font-size: 0.8rem; color: #666;">Click card to solve</span>
+                </div>
+                
+                <div class="problems-grid" id="problemsGrid">
+                    </div>
+
+                <div style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <button class="btn-primary" id="viewRatingBtn" style="background-color: var(--secondary-accent); margin: 0 auto;">
+                        See Rating Changes 📉
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('upcoming')">Upcoming & Running</button>
+            <button class="tab-btn" onclick="switchTab('history')">History</button>
+        </div>
+
+        <div id="loading" style="text-align:center; padding: 20px; color: #888;">Loading full contest list...</div>
+
+        <div id="contentArea" class="table-container" style="display: none;">
+            <table id="contestTable">
+                <thead>
+                    <tr>
+                        <th width="40%">Contest Name</th>
+                        <th width="10%">Type</th>
+                        <th width="20%">Start Time</th>
+                        <th width="15%">Duration</th>
+                        <th width="15%">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination-controls" id="paginationControls" style="display: none;">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)">Previous</button>
+            <span id="pageIndicator">Page 1 of 10</span>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next</button>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="ratingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Rating Changes</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalLoading" style="display:none; text-align:center; color: var(--accent-color);">Fetching data...</div>
+            <div class="modal-body">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th width="15%">Rank</th>
+                            <th width="35%">Handle</th>
+                            <th width="15%">Old Rating</th>
+                            <th width="15%">New Rating</th>
+                            <th width="20%">Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ratingTableBody"></tbody>
+                </table>
+            </div>
+            <div class="pagination-controls">
+                <button class="page-btn" id="modalPrevBtn" onclick="changeModalPage(-1)">Previous</button>
+                <span id="modalPageIndicator">Page 1</span>
+                <button class="page-btn" id="modalNextBtn" onclick="changeModalPage(1)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION: Ensure this matches your C# Controller Port
+        const API_BASE = 'http://localhost:5243/api/v0.1';
+
+        // --- State Variables ---
+        let allContests = [];
+        let currentTab = 'upcoming';
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        let ratingChangesData = [];
+        let currentRatingPage = 1;
+        const ratingsPerPage = 15;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchContests(); // Load the bottom list
+        });
+
+        // ==========================================
+        // 1. DEEP DIVE DASHBOARD LOGIC (The New Part)
+        // ==========================================
+        async function searchContest() {
+            const idInput = document.getElementById('contestIdInput').value;
+            const errorDiv = document.getElementById('searchError');
+            const deepDiveArea = document.getElementById('contestDeepDive');
+            
+            if (!idInput) return;
+
+            // Reset UI
+            errorDiv.style.display = 'none';
+            deepDiveArea.style.display = 'none';
+            document.getElementById('contestHeader').innerHTML = '<div style="color:white;">Loading contest details...</div>';
+            document.getElementById('problemsGrid').innerHTML = '';
+
+            try {
+                // Modified Fetch based on your fix:
+                const response = await fetch(`${API_BASE}/cf/contest/${idInput}/standings?from=1&count=10`);
+                
+                if (!response.ok) throw new Error("Contest not found or API error");
+                const data = await response.json();
+
+                if (!data.contest || !data.problems) throw new Error("Invalid data received.");
+
+                // Render components
+                renderContestHeader(data.contest);
+                renderProblems(data.problems, data.contest.id);
+                setupRatingButton(data.contest);
+                
+                deepDiveArea.style.display = 'flex';
+
+            } catch (err) {
+                console.error(err);
+                errorDiv.textContent = err.message || "Failed to load contest details.";
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function renderContestHeader(contest) {
+            const container = document.getElementById('contestHeader');
+            const durationStr = formatDuration(contest.durationSeconds);
+            const phaseBadge = getStatusBadge(contest);
+
+            container.innerHTML = `
+                <div>
+                    <div class="contest-title-large">${contest.name}</div>
+                    <div style="color: #bbb; margin-top: 5px;">
+                        <span style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${contest.type}</span> 
+                        <span style="margin-left:10px;">ID: ${contest.id}</span>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    ${phaseBadge}
+                    <div style="text-align:right; color:#ddd; font-size:0.9rem;">
+                        <div>⏱ Duration: ${durationStr}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProblems(problems, contestId) {
+            const grid = document.getElementById('problemsGrid');
+            
+            problems.forEach(prob => {
+                const problemUrl = `https://codeforces.com/contest/${contestId}/problem/${prob.index}`;
+                const ratingClass = getRatingColorClass(prob.rating);
+                const ratingText = prob.rating ? `⚡ ${prob.rating}` : 'Unrated';
+                const tagsHtml = prob.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('');
+
+                const card = document.createElement('a');
+                card.className = 'problem-card';
+                card.href = problemUrl;
+                card.target = "_blank"; // Opens in new tab
+
+                card.innerHTML = `
+                    <div class="problem-index">${prob.index}</div>
+                    <div class="problem-name">${prob.name}</div>
+                    <div class="problem-rating ${ratingClass}">${ratingText}</div>
+                    <div class="problem-tags">${tagsHtml}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setupRatingButton(contest) {
+            const viewBtn = document.getElementById('viewRatingBtn');
+            if (contest.phase !== 'FINISHED') {
+                viewBtn.disabled = true;
+                viewBtn.textContent = "Ratings Pending (Contest Not Finished)";
+                viewBtn.style.opacity = "0.5";
+            } else {
+                viewBtn.disabled = false;
+                viewBtn.textContent = "See Rating Changes 📉";
+                viewBtn.style.opacity = "1";
+                viewBtn.onclick = () => openRatingModal(contest.id, contest.name);
+            }
+        }
+
+        function getRatingColorClass(rating) {
+            if (!rating) return 'diff-gray';
+            if (rating < 1200) return 'diff-gray';
+            if (rating < 1400) return 'diff-green';
+            if (rating < 1600) return 'diff-cyan';
+            if (rating < 1900) return 'diff-blue';
+            if (rating < 2100) return 'diff-violet';
+            if (rating < 2400) return 'diff-orange';
+            return 'diff-red';
+        }
+
+        // ==========================================
+        // 2. MAIN LIST LOGIC (Bottom Table)
+        // ==========================================
+        async function fetchContests() {
+            try {
+                // Assuming standard endpoint for list
+                const response = await fetch(`${API_BASE}/cf/contest`);
+                if (!response.ok) throw new Error("Failed to list contests");
+                allContests = await response.json();
+                processDataForTab();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('contentArea').style.display = 'block';
+                document.getElementById('paginationControls').style.display = 'flex';
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').textContent = "Error loading main contest list.";
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            currentPage = 1;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            processDataForTab();
+        }
+
+        function processDataForTab() {
+            if (currentTab === 'upcoming') {
+                filteredData = allContests.filter(c => c.phase === 'BEFORE' || c.phase === 'CODING');
+                filteredData.sort((a, b) => a.startTimeSeconds - b.startTimeSeconds);
+            } else {
+                filteredData = allContests.filter(c => c.phase === 'FINISHED');
+                filteredData.sort((a, b) => b.startTimeSeconds - a.startTimeSeconds);
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            const start = (currentPage - 1) * itemsPerPage;
+            const pageItems = filteredData.slice(start, start + itemsPerPage);
+
+            pageItems.forEach(contest => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="https://codeforces.com/contest/${contest.id}" target="_blank" class="contest-link">${contest.name} 🔗</a></td>
+                    <td>${contest.type}</td>
+                    <td>${new Date(contest.startTimeSeconds * 1000).toLocaleString()}</td>
+                    <td>${formatDuration(contest.durationSeconds)}</td>
+                    <td>${getStatusBadge(contest)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
+            document.getElementById('pageIndicator').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+            }
+        }
+
+        // ==========================================
+        // 3. RATING MODAL LOGIC
+        // ==========================================
+        async function openRatingModal(contestId, contestName) {
+            const modal = document.getElementById('ratingModal');
+            document.getElementById('modalTitle').textContent = `Ratings: ${contestName}`;
+            document.getElementById('ratingTableBody').innerHTML = '';
+            document.getElementById('modalLoading').style.display = 'block';
+            modal.style.display = 'flex';
+            
+            ratingChangesData = [];
+            currentRatingPage = 1;
+
+            try {
+                const response = await fetch(`${API_BASE}/cf/contest/${contestId}/rating-changes`);
+                if (!response.ok) throw new Error("Failed");
+                ratingChangesData = await response.json();
+                renderRatingPage();
+            } catch (err) {
+                document.getElementById('ratingTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">No data available</td></tr>`;
+            } finally {
+                document.getElementById('modalLoading').style.display = 'none';
+            }
+        }
+
+        function renderRatingPage() {
+            const tbody = document.getElementById('ratingTableBody');
+            tbody.innerHTML = '';
+            const start = (currentRatingPage - 1) * ratingsPerPage;
+            const pageItems = ratingChangesData.slice(start, start + ratingsPerPage);
+
+            if(pageItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No changes found.</td></tr>`;
+                return;
+            }
+
+            pageItems.forEach(rc => {
+                const change = rc.newRating - rc.oldRating;
+                const changeClass = change > 0 ? 'rating-up' : (change < 0 ? 'rating-down' : 'rating-neutral');
+                const sign = change > 0 ? '+' : '';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>#${rc.rank}</td>
+                    <td style="font-weight:600; color: #fff;">${rc.handle}</td>
+                    <td>${rc.oldRating}</td>
+                    <td>${rc.newRating}</td>
+                    <td class="${changeClass}">${sign}${change}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totalPages = Math.ceil(ratingChangesData.length / ratingsPerPage) || 1;
+            document.getElementById('modalPageIndicator').textContent = `Page ${currentRatingPage} of ${totalPages}`;
+            document.getElementById('modalPrevBtn').disabled = currentRatingPage === 1;
+            document.getElementById('modalNextBtn').disabled = currentRatingPage === totalPages;
+        }
+
+        function changeModalPage(delta) {
+            const totalPages = Math.ceil(ratingChangesData.length / ratingsPerPage);
+            if (currentRatingPage + delta >= 1 && currentRatingPage + delta <= totalPages) {
+                currentRatingPage += delta;
+                renderRatingPage();
+            }
+        }
+
+        function closeModal() { document.getElementById('ratingModal').style.display = 'none'; }
+        window.onclick = function(e) { if(e.target == document.getElementById('ratingModal')) closeModal(); }
+
+        // ==========================================
+        // 4. SHARED HELPERS
+        // ==========================================
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return h > 24 ? `${Math.floor(h / 24)} days` : `${h}h ${m > 0 ? m + 'm' : ''}`;
+        }
+
+        function getStatusBadge(contest) {
+            if (contest.phase === 'BEFORE') {
+                const diff = contest.startTimeSeconds - (Date.now() / 1000);
+                const days = Math.floor(diff / 86400);
+                return `<span class="badge status-before">${days > 0 ? `In ${days} days` : 'Soon'}</span>`;
+            } else if (contest.phase === 'CODING') {
+                return `<span class="badge status-coding">Running</span>`;
+            }
+            return `<span class="badge status-finished">Finished</span>`;
+        }
+    </script>
+</body>
+</html>

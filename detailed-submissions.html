@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Submission Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #2c2c44;
+            --text-color: #e0e0e0;
+            --accent-color: #00bcd4;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 30px;
+            position: relative; /* To position the back button */
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .handle-display {
+            font-size: 1.5em;
+            color: #fce38a;
+            margin-top: 5px;
+        }
+        
+        /* Back Button Style */
+        .back-button {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f73859;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #d12e4b;
+        }
+
+        /* --- Table Styling --- */
+        #submissionsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        #submissionsTable th, #submissionsTable td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        #submissionsTable th {
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        #submissionsTable tbody tr:hover {
+            background-color: #3d3d5f;
+        }
+
+        /* Verdict Styling */
+        .verdict-OK { color: #4CAF50; font-weight: 600; }
+        .verdict-WRONG_ANSWER { color: #F44336; font-weight: 600; }
+        .verdict-TIME_LIMIT_EXCEEDED { color: #ff9800; font-weight: 600; }
+        .verdict-COMPILATION_ERROR { color: #9c27b0; font-weight: 600; }
+        
+        /* --- Pagination Controls --- */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .pagination-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .pagination-controls button:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+            color: #999;
+        }
+
+        .page-info {
+            font-size: 1.1em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        #loading, #error {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: var(--accent-color);
+        }
+        
+        #error {
+            color: #F44336;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="back-button" onclick="(history.length > 1) ? history.back() : location.href='index.html'">
+            &#x2190; Back to Profile
+            </button>
+
+            <h1>Submission Report for</h1>
+            <div class="handle-display" id="reportHandle">Loading...</div>
+        </header>
+
+        <div id="loading" class="hidden">Fetching detailed submissions...</div>
+        <div id="error" class="hidden"></div>
+        
+        <div id="submissionContent">
+            <table id="submissionsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Contest</th>
+                        <th>Problem</th>
+                        <th>Rating</th>
+                        <th>Lang</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody id="submissionsBody">
+                    </tbody>
+            </table>
+            
+            <div class="pagination-controls">
+                <button id="prevPageBtn" disabled>&#x2190; Previous</button>
+                <span class="page-info" id="pageInfo">Page 1 (Submissions 1 - 50)</span>
+                <button id="nextPageBtn" disabled>Next &#x2192;</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration
+            const API_BASE_URL = 'http://localhost:5243/api/v0.1/cf/user/';
+            const SUBMISSIONS_PER_PAGE = 50; 
+
+            // State variables
+            let currentHandle = '';
+            let currentPage = 1;
+
+            // DOM elements
+            const reportHandle = document.getElementById('reportHandle');
+            const submissionsBody = document.getElementById('submissionsBody');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            const submissionContent = document.getElementById('submissionContent');
+
+            // --- Utility Functions ---
+
+            const getQueryParam = (name) => {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            };
+            
+            const setVisibility = (id, visible) => {
+                document.getElementById(id).classList.toggle('hidden', !visible);
+            };
+
+            const timeConverter = (UNIX_timestamp) => {
+                if (!UNIX_timestamp) return 'N/A';
+                const a = new Date(UNIX_timestamp * 1000);
+                return a.toLocaleString("en-US", {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            };
+
+            // --- Main Fetching Logic ---
+
+            const fetchSubmissions = async (page) => {
+                const from = (page - 1) * SUBMISSIONS_PER_PAGE + 1;
+                const count = SUBMISSIONS_PER_PAGE;
+                
+                setVisibility('loading', true);
+                setVisibility('error', false);
+                submissionContent.classList.add('hidden');
+                submissionsBody.innerHTML = ''; 
+                
+                prevPageBtn.disabled = true;
+                nextPageBtn.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}${currentHandle}/submissions?from=${from}&count=${count}`);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to fetch submissions.');
+                    }
+                    
+                    const submissions = await response.json();
+                    
+                    if (submissions.length === 0 && page > 1) {
+                         // We tried to navigate past the last page
+                         currentPage = page - 1;
+                         await fetchSubmissions(currentPage); // Re-fetch the last valid page
+                         return; 
+                    } else if (submissions.length === 0 && page === 1) {
+                        submissionsBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No submissions found for this user.</td></tr>';
+                    } else {
+                        renderSubmissions(submissions);
+                    }
+                    
+                    // Update pagination controls
+                    currentPage = page;
+                    pageInfo.textContent = `Page ${currentPage} (Submissions ${from} - ${from + submissions.length - 1})`;
+                    prevPageBtn.disabled = currentPage === 1;
+                    nextPageBtn.disabled = submissions.length < SUBMISSIONS_PER_PAGE; // Disable next if we didn't get a full page
+
+                    submissionContent.classList.remove('hidden');
+
+                } catch (err) {
+                    errorDiv.textContent = `Error: ${err.message}`;
+                    setVisibility('error', true);
+                } finally {
+                    setVisibility('loading', false);
+                }
+            };
+
+            // --- Renderer ---
+
+            const renderSubmissions = (submissions) => {
+                submissionsBody.innerHTML = '';
+                submissions.forEach(sub => {
+                    const row = submissionsBody.insertRow();
+                    const verdictClass = sub.verdict.toUpperCase().replace(/\s/g, '_');
+                    
+                    row.innerHTML = `
+                        <td>${sub.id}</td>
+                        <td>${timeConverter(sub.creationTimeSeconds)}</td>
+                        <td>${sub.contestId}</td>
+                        <td><a href="https://codeforces.com/contest/${sub.contestId}/problem/${sub.problem.index}" target="_blank" title="${sub.problem.name}">${sub.problem.index} - ${sub.problem.name}</a></td>
+                        <td>${sub.problem.rating || 'N/A'}</td>
+                        <td>${sub.programmingLanguage.split('(')[0].trim()}</td>
+                        <td class="verdict-${verdictClass}">${sub.verdict}</td>
+                    `;
+                });
+            };
+
+            // --- Event Listeners and Initialization ---
+            
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchSubmissions(currentPage - 1);
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                // Optimistically load the next page
+                fetchSubmissions(currentPage + 1);
+            });
+
+            currentHandle = getQueryParam('handle');
+
+            if (currentHandle) {
+                reportHandle.textContent = currentHandle;
+                fetchSubmissions(1);
+            } else {
+                reportHandle.textContent = 'Error: No handle provided.';
+                errorDiv.textContent = 'Please return to the main page and search for a handle.';
+                setVisibility('error', true);
+                submissionContent.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
