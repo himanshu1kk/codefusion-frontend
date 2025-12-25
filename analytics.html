@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Matrix | CP Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --bg-card: #121212;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            
+            /* Status Colors */
+            --col-strong: #00E676; /* Bright Green */
+            --col-avg: #FFC107;    /* Amber */
+            --col-weak: #FF5252;   /* Red */
+            
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 230, 118, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(255, 82, 82, 0.05) 0%, transparent 40%);
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        /* --- Navbar --- */
+        nav {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 5, 5, 0.8);
+        }
+
+        .btn-return {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-muted);
+            background: var(--glass);
+            border: var(--border);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-return:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-3px);
+        }
+
+        .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; }
+        .brand span { color: var(--col-strong); }
+
+        .search-box {
+            background: var(--glass);
+            border: var(--border);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            width: 300px;
+            transition: 0.3s;
+        }
+        .search-box:focus-within { border-color: var(--col-strong); box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+        .search-box input { background: transparent; border: none; color: white; outline: none; width: 100%; margin-left: 10px; }
+
+        /* --- Main Layout --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .header-summary { margin-bottom: 20px; }
+        .handle-title { font-size: 3rem; font-weight: 700; }
+        .sub-title { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* --- Quick Nav Buttons --- */
+        .quick-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+
+        .nav-pill {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: var(--border);
+            background: var(--glass);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-pill:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-pill.strong:hover { border-color: var(--col-strong); color: var(--col-strong); }
+        .nav-pill.avg:hover { border-color: var(--col-avg); color: var(--col-avg); }
+        .nav-pill.weak:hover { border-color: var(--col-weak); color: var(--col-weak); }
+
+        /* --- Horizontal Sections --- */
+        .category-section {
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeIn 0.8s forwards;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding-left: 10px;
+            border-left: 5px solid transparent;
+        }
+
+        .category-section.strong .section-header { border-color: var(--col-strong); color: var(--col-strong); }
+        .category-section.avg .section-header { border-color: var(--col-avg); color: var(--col-avg); }
+        .category-section.weak .section-header { border-color: var(--col-weak); color: var(--col-weak); }
+
+        .section-subtitle { font-size: 0.9rem; opacity: 0.6; font-weight: 400; margin-left: 10px; letter-spacing: 1px;}
+
+        /* --- Horizontal Scroll Container --- */
+        .topic-list-wrapper { position: relative; }
+
+        .topic-list {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 5px 30px 5px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Horizontal Scrollbar */
+        .topic-list::-webkit-scrollbar { height: 8px; }
+        .topic-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
+        .topic-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+        .topic-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* --- Topic Card UI --- */
+        .topic-card {
+            min-width: 260px;
+            max-width: 260px;
+            background: var(--bg-card);
+            border: var(--border);
+            padding: 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .category-section.strong .topic-card:hover { border-color: var(--col-strong); box-shadow: 0 10px 30px -10px rgba(0, 230, 118, 0.2); transform: translateY(-5px); }
+        .category-section.avg .topic-card:hover { border-color: var(--col-avg); box-shadow: 0 10px 30px -10px rgba(255, 193, 7, 0.2); transform: translateY(-5px); }
+        .category-section.weak .topic-card:hover { border-color: var(--col-weak); box-shadow: 0 10px 30px -10px rgba(255, 82, 82, 0.2); transform: translateY(-5px); }
+
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .topic-name { font-weight: 600; font-size: 1.1rem; line-height: 1.3; }
+        .topic-acc { font-weight: 700; font-size: 1.4rem; opacity: 0.9; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; border-radius: 2px; }
+
+        .mini-stats { 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            display: flex; 
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- Modal (Detail View) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.15);
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+            transform: scale(0.9);
+            transition: 0.3s;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .modal-tag-name { font-size: 2rem; font-weight: 700; text-transform: capitalize; }
+        .modal-tag-badge { padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; }
+        .stat-label { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; }
+
+        .chart-area { height: 200px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; position: relative; }
+        .close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+        /* Error / Loading States */
+        .state-message {
+            text-align: center;
+            padding: 100px 20px;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+        .error-title { color: var(--col-weak); font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+        .error-link { color: var(--col-strong); text-decoration: none; border-bottom: 1px dashed var(--col-strong); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="main.html" class="btn-return">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Return to Main Page
+        </a>
+
+        <div class="brand">Skill<span>Matrix</span></div>
+        
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="handleInput" placeholder="Enter Handle (e.g. tourist)">
+        </div>
+    </nav>
+
+    <div class="container" id="mainContainer">
+        
+        <div class="header-summary">
+            <h1 class="handle-title" id="displayHandle">Loading...</h1>
+            <p class="sub-title">Categorized Topic Analysis based on Submission History</p>
+        </div>
+
+        <div id="contentArea">
+            <div class="quick-nav">
+                <div class="nav-pill strong" onclick="scrollToSection('sec-strong')">
+                    <span>⚡</span> Strong
+                </div>
+                <div class="nav-pill avg" onclick="scrollToSection('sec-avg')">
+                    <span>⚖️</span> Average
+                </div>
+                <div class="nav-pill weak" onclick="scrollToSection('sec-weak')">
+                    <span>💀</span> Weak
+                </div>
+            </div>
+
+            <div class="category-section strong" id="sec-strong">
+                <div class="section-header">
+                    <span>⚡ Strong Areas</span>
+                    <span class="section-subtitle">(>65% Accuracy)</span>
+                </div>
+                <div class="topic-list-wrapper">
+                    <div class="topic-list" id="listStrong"></div>
+                </div>
+            </div>
+
+            <div class="category-section avg" id="sec-avg">
+                <div class="section-header">
+                    <span>⚖️ Average Areas</span>
+                    <span class="section-subtitle">(35% - 65% Accuracy)</span>
+                </div>
+                <div class="topic-list-wrapper">
+                    <div class="topic-list" id="listAvg"></div>
+                </div>
+            </div>
+
+            <div class="category-section weak" id="sec-weak">
+                <div class="section-header">
+                    <span>💀 Weak Areas</span>
+                    <span class="section-subtitle">(<35% Accuracy)</span>
+                </div>
+                <div class="topic-list-wrapper">
+                    <div class="topic-list" id="listWeak"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="errorArea" class="state-message hidden"></div>
+
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            
+            <div class="modal-header">
+                <div>
+                    <div class="modal-tag-name" id="mTagName">Matrices</div>
+                    <div style="color: var(--text-muted); margin-top: 5px;">Performance Breakdown</div>
+                </div>
+                <div class="modal-tag-badge" id="mTagBadge" style="border: 1px solid white;">Strong</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-label">Total Attempts</span>
+                    <span class="stat-value" id="mTotal">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Accuracy</span>
+                    <span class="stat-value" id="mAcc">0%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label" style="color: #00E676;">Accepted (AC)</span>
+                    <span class="stat-value" id="mAc" style="color: #00E676;">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label" style="color: #FF5252;">Errors (WA/TLE)</span>
+                    <span class="stat-value" id="mErr" style="color: #FF5252;">0</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">Verdict Distribution</div>
+            <div class="chart-area">
+                <canvas id="topicChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    const API_BASE_URL =
+        'https://cff-production.up.railway.app/api/v0.1/cf/analytics/user/';
+    let currentChart = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const handle = urlParams.get('handle') || 'tourist';
+
+    document.getElementById('displayHandle').innerText = `Analyzing: ${handle}...`;
+    document.getElementById('handleInput').value = handle;
+
+    fetchData(handle);
+
+    document.getElementById('handleInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const newHandle = this.value.trim();
+            if (newHandle) {
+                window.location.search = `?handle=${newHandle}`;
+            }
+        }
+    });
+
+    async function fetchData(user) {
+        const contentArea = document.getElementById('contentArea');
+        const errorArea = document.getElementById('errorArea');
+
+        try {
+            contentArea.classList.add('hidden');
+            errorArea.classList.add('hidden');
+            document.getElementById('displayHandle').innerText = `Syncing: ${user}...`;
+
+            const targetUrl =
+                `${API_BASE_URL}${user}/skill-gap?limit=500`;
+
+            const res = await fetch(targetUrl);
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                let msg = `<div class="error-title">Error</div>Unable to fetch analytics.`;
+
+                if (errorData?.message) {
+                    msg = `<div class="error-title">Error</div>${errorData.message}`;
+                }
+
+                showError(msg);
+                return;
+            }
+
+            const data = await res.json();
+
+            if (
+                !data ||
+                (!data.strong?.length && !data.average?.length && !data.weak?.length)
+            ) {
+                showError(
+                    `<div class="error-title">No Data</div>No analytics available for "${user}".`
+                );
+                return;
+            }
+
+            document.getElementById('displayHandle').innerText = user;
+
+            const allTopics = [
+                ...(data.strong || []),
+                ...(data.average || []),
+                ...(data.weak || [])
+            ];
+
+            renderColumns(allTopics);
+            contentArea.classList.remove('hidden');
+        }
+        catch (err) {
+            console.error(err);
+            showError(
+                `<div class="error-title">Network Error</div>Could not connect to server.`
+            );
+        }
+    }
+
+    function showError(htmlMsg) {
+        const errorArea = document.getElementById('errorArea');
+        document.getElementById('displayHandle').innerText = "Analysis Failed";
+        errorArea.innerHTML = htmlMsg;
+        errorArea.classList.remove('hidden');
+    }
+
+    function renderColumns(data) {
+        const strongContainer = document.getElementById('listStrong');
+        const avgContainer = document.getElementById('listAvg');
+        const weakContainer = document.getElementById('listWeak');
+
+        strongContainer.innerHTML = '';
+        avgContainer.innerHTML = '';
+        weakContainer.innerHTML = '';
+
+        data.forEach(topic => {
+            const card = createCard(topic);
+            if (topic.level === 'Strong') strongContainer.innerHTML += card;
+            else if (topic.level === 'Average') avgContainer.innerHTML += card;
+            else weakContainer.innerHTML += card;
+        });
+
+        const emptyMsg =
+            '<div style="color:var(--text-muted); padding: 20px; white-space: nowrap;">No topics in this category.</div>';
+
+        if (strongContainer.innerHTML === '') strongContainer.innerHTML = emptyMsg;
+        if (avgContainer.innerHTML === '') avgContainer.innerHTML = emptyMsg;
+        if (weakContainer.innerHTML === '') weakContainer.innerHTML = emptyMsg;
+    }
+
+    function createCard(topic) {
+        const dataStr = encodeURIComponent(JSON.stringify(topic));
+
+        let barColor = '#fff';
+        if (topic.level === 'Strong') barColor = 'var(--col-strong)';
+        else if (topic.level === 'Average') barColor = 'var(--col-avg)';
+        else barColor = 'var(--col-weak)';
+
+        return `
+            <div class="topic-card" onclick="openModal('${dataStr}')">
+                <div>
+                    <div class="card-top">
+                        <div class="topic-name">${topic.tag}</div>
+                        <div class="topic-acc" style="color: ${barColor}">
+                            ${topic.accuracy.toFixed(1)}%
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"
+                             style="width: ${topic.accuracy}%; background: ${barColor}">
+                        </div>
+                    </div>
+                </div>
+                <div class="mini-stats">
+                    <span>${topic.attempts} Tries</span>
+                    <span>${topic.accepted} Solved</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function openModal(dataStr) {
+        const data = JSON.parse(decodeURIComponent(dataStr));
+        const modal = document.getElementById('detailModal');
+        const badge = document.getElementById('mTagBadge');
+
+        document.getElementById('mTagName').innerText = data.tag;
+        document.getElementById('mTotal').innerText = data.attempts;
+        document.getElementById('mAcc').innerText = data.accuracy.toFixed(1) + '%';
+        document.getElementById('mAc').innerText = data.accepted;
+        document.getElementById('mErr').innerText =
+            (data.wrongAnswer || 0) + (data.timeLimitExceeded || 0);
+
+        badge.innerText = data.level;
+        badge.style.color = '';
+        badge.style.borderColor = '';
+
+        if (data.level === 'Strong') {
+            badge.style.color = 'var(--col-strong)';
+            badge.style.borderColor = 'var(--col-strong)';
+        } else if (data.level === 'Average') {
+            badge.style.color = 'var(--col-avg)';
+            badge.style.borderColor = 'var(--col-avg)';
+        } else {
+            badge.style.color = 'var(--col-weak)';
+            badge.style.borderColor = 'var(--col-weak)';
+        }
+
+        renderModalChart(data);
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+        if (e.target.id === 'detailModal') closeModal();
+    });
+
+    function renderModalChart(data) {
+        const ctx = document.getElementById('topicChart').getContext('2d');
+        if (currentChart) currentChart.destroy();
+
+        currentChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Accepted', 'Wrong Ans', 'TLE'],
+                datasets: [{
+                    data: [
+                        data.accepted,
+                        data.wrongAnswer || 0,
+                        data.timeLimitExceeded || 0
+                    ],
+                    backgroundColor: ['#00E676', '#FF5252', '#FFC107'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#fff', font: { family: 'Space Grotesk' } }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    function scrollToSection(id) {
+        const el = document.getElementById(id);
+        const yOffset = -100;
+        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>

@@ -18,6 +18,7 @@
             --accent-primary: #38bdf8; /* Sky Blue */
             --accent-glow: rgba(56, 189, 248, 0.3);
             --accent-secondary: #f472b6; /* Pink */
+            --accent-secondary-glow: rgba(244, 114, 182, 0.3);
             
             /* Rank Colors */
             --rank-newbie: #9ca3af;
@@ -40,7 +41,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif; /* Cleaner, more modern font than Poppins */
+            font-family: 'Outfit', sans-serif;
             background-color: var(--bg-dark);
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
@@ -74,6 +75,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
         }
 
         /* --- MODERN SEARCH BAR --- */
@@ -125,14 +127,13 @@
         }
 
         /* --- NAV ACTIONS --- */
-        /* Added Flex layout here for better spacing of the new button */
         .nav-actions {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
         }
 
-        .nav-actions .nav-link-btn {
+        .nav-link-btn {
             text-decoration: none;
             color: var(--text-muted);
             font-weight: 600;
@@ -143,20 +144,38 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 0.9rem;
         }
 
-        .nav-actions .nav-link-btn:hover {
-            color: var(--accent-primary);
-            background: rgba(56, 189, 248, 0.1);
-            border-color: rgba(56, 189, 248, 0.2);
+        /* General Hover */
+        .nav-link-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
             transform: translateY(-1px);
         }
 
-        /* Highlight specifically the practice button slightly more */
+        /* Practice Button Specifics */
         .nav-link-btn.practice-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
+            background: rgba(56, 189, 248, 0.05);
+            border-color: rgba(56, 189, 248, 0.2);
+            color: var(--accent-primary);
+        }
+
+        .nav-link-btn.practice-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Analytics Button Specifics (New) */
+        .nav-link-btn.analytics-btn {
+            background: rgba(244, 114, 182, 0.05);
+            border-color: rgba(244, 114, 182, 0.2);
+            color: var(--accent-secondary);
+        }
+
+        .nav-link-btn.analytics-btn:hover {
+            background: rgba(244, 114, 182, 0.15);
+            box-shadow: 0 0 15px var(--accent-secondary-glow);
         }
 
         /* --- MAIN LAYOUT --- */
@@ -343,7 +362,7 @@
             cursor: not-allowed;
         }
 
-        /* --- THE NEW ERROR STATE (REDESIGNED) --- */
+        /* --- ERROR STATE --- */
         #error-container {
             grid-column: 1 / -1;
             display: flex;
@@ -404,7 +423,7 @@
 
         .hidden { display: none !important; }
 
-        /* Rank Color Classes (Dynamic) */
+        /* Rank Color Classes */
         .rank-color-newbie { color: var(--rank-newbie); }
         .rank-color-pupil { color: var(--rank-pupil); }
         .rank-color-specialist { color: var(--rank-specialist); }
@@ -426,10 +445,9 @@
         @media (max-width: 768px) {
             header { flex-direction: column; gap: 15px; padding: 20px; }
             .search-container { margin: 0; width: 100%; }
-            .nav-actions { width: 100%; justify-content: center; } /* Center nav items on mobile */
+            .nav-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
             .summary-content { flex-direction: column; text-align: center; }
             .actions-row { justify-content: center; flex-wrap: wrap; }
-            /* Hide non-critical table columns on mobile */
             td:nth-child(4), th:nth-child(4), td:nth-child(6), th:nth-child(6) { display: none; }
         }
     </style>
@@ -437,9 +455,9 @@
 <body>
 
     <header>
-        <div class="brand">
+        <a href="#" class="brand">
             <span>🚀 CF Explorer</span>
-        </div>
+        </a>
     
         <div class="search-container">
             <input type="text" id="handleInput" placeholder="Search handle (e.g. tourist)">
@@ -447,6 +465,7 @@
         </div>
     
         <nav class="nav-actions">
+            <a href="analytics.html" class="nav-link-btn analytics-btn">Analytics 📊</a>
             <a href="practice.html" class="nav-link-btn practice-btn">Practice 🎯</a>
             <a href="contest.html" class="nav-link-btn">Contests</a>
         </nav>
@@ -459,8 +478,7 @@
             <span>Fetching Profile Data...</span>
         </div>
         
-        <div id="error-container" class="hidden">
-            </div>
+        <div id="error-container" class="hidden"></div>
 
         <section id="summarySection" class="glass-card hidden">
             <div class="summary-content">
@@ -544,11 +562,9 @@
             const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
             const trackRatingBtn = document.getElementById('trackRatingBtn');
 
-            const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
+            const API_BASE_URL = 'http://cff-production.up.railway.app/api/v0.1/cf/user/';
 
             let currentHandle = '';
-
-      
 
             const setVisibility = (id, visible) => {
                 const el = document.getElementById(id);
