@@ -166,6 +166,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
         }
 
         .btn-primary:hover {
@@ -189,7 +190,7 @@
             padding-bottom: 20px;
         }
 
-        .contest-title-display { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
+        .contest-title-display { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: -0.5px; line-height: 1.3; }
         .contest-id-badge { 
             font-family: 'JetBrains Mono', monospace; 
             font-size: 0.8rem; 
@@ -199,6 +200,7 @@
             border-radius: 4px;
             vertical-align: middle;
             margin-left: 10px;
+            display: inline-block;
         }
 
         .problems-grid {
@@ -266,6 +268,8 @@
             gap: 30px;
             margin-bottom: 20px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+            white-space: nowrap;
         }
 
         .tab-btn {
@@ -300,6 +304,7 @@
             grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
             align-items: center;
             transition: transform 0.2s, background 0.2s;
+            gap: 10px;
         }
 
         .list-row:hover {
@@ -316,6 +321,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 600;
+            gap: 10px;
         }
 
         .c-link { color: var(--text-primary); text-decoration: none; font-weight: 600; font-size: 1rem; }
@@ -381,6 +387,95 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* ========================================= */
+        /* === MOBILE RESPONSIVENESS ADJUSTMENTS === */
+        /* ========================================= */
+        @media (max-width: 768px) {
+            :root {
+                --nav-height: 60px;
+            }
+
+            main {
+                margin: 20px auto;
+                padding: 0 16px;
+            }
+
+            .header-content { padding: 0 16px; }
+
+            /* Shrink nav button to icon only on small screens to save space */
+            .nav-btn span { display: none; }
+            .nav-btn { padding: 10px; border-radius: 50%; }
+
+            /* Stack Analyze Section */
+            .analyze-section { padding: 20px; border-radius: var(--radius-md); }
+            .analyze-header h1 { font-size: 1.4rem; }
+            
+            .search-wrapper { 
+                flex-direction: column; 
+                gap: 10px; 
+                max-width: 100%; 
+            }
+            .search-input, .btn-primary { width: 100%; padding: 12px; }
+
+            /* Contest Deep Dive Header Stack */
+            .contest-meta-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .contest-meta-card > div:last-child {
+                align-self: flex-start;
+                text-align: left !important;
+            }
+
+            /* Adjust Problem Grid for Mobile */
+            .problems-grid {
+                grid-template-columns: 1fr; /* Full width cards on mobile */
+            }
+
+            /* --- Table Transformations for Mobile --- */
+            .list-header { display: none; } /* Hide header row */
+
+            .list-row {
+                /* Transform from grid to stacked card layout */
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 16px;
+            }
+
+            /* Hide less important columns on mobile to clean up UI */
+            .list-row > div:nth-child(2), /* Type */
+            .list-row > div:nth-child(4) { /* Duration */
+                display: none;
+            }
+
+            /* Style the Event Name */
+            .list-row > div:nth-child(1) {
+                width: 100%;
+                margin-bottom: 4px;
+            }
+
+            /* Style Time and Status to sit side-by-side */
+            .list-row > div:nth-child(3) {
+                font-size: 0.85rem;
+                color: var(--text-tertiary);
+            }
+            
+            .list-row > div:nth-child(5) {
+                margin-top: 4px;
+                font-size: 0.85rem;
+            }
+
+            /* Modal Adjustments */
+            .modal-window { width: 95%; height: 90vh; }
+            .rating-row { padding: 10px 0; }
+            .rating-row > div:nth-child(1) { width: 30px !important; } /* Shrink rank width */
+            .rating-row > div:nth-child(3) { display: none; } /* Hide old->new rating text, just show change */
+            .rating-row > div:nth-child(4) { width: auto !important; }
+        }
+
     </style>
 </head>
 <body>
@@ -393,7 +488,7 @@
             </div>
             <a href="main.html" class="nav-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Return to Profile
+                <span>Return to Profile</span>
             </a>
         </div>
     </header>
@@ -475,7 +570,7 @@
     let filteredData = [];
     let currentTab = 'upcoming';
     let currentPage = 1;
-    const itemsPerPage = 8; // Slight reduction for cleaner look
+    const itemsPerPage = 8; 
 
     let ratingChangesData = [];
     let currentRatingPage = 1;
@@ -631,6 +726,7 @@
 
             const row = document.createElement('div');
             row.className = 'list-row';
+            // We use the same HTML structure but CSS will handle the hiding/stacking on mobile
             row.innerHTML = `
                 <div><a href="https://codeforces.com/contest/${c.id}" target="_blank" class="c-link">${c.name}</a></div>
                 <div class="c-detail">${c.type}</div>

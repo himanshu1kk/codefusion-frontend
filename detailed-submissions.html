@@ -62,7 +62,7 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            flex-wrap: wrap; /* Allows wrapping on small screens */
+            flex-wrap: wrap;
             gap: 15px;
         }
 
@@ -80,7 +80,7 @@
             background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            word-break: break-all; /* Prevents long handles from overflowing */
+            word-break: break-all;
         }
 
         .back-button {
@@ -117,7 +117,6 @@
 
         .table-responsive {
             width: 100%;
-            /* overflow-x: auto;  Removed to allow card transform, handled via media query */
         }
 
         table {
@@ -168,6 +167,7 @@
             display: block;
             margin-bottom: 4px;
             transition: color 0.2s;
+            line-height: 1.4;
         }
         .problem-link:hover { color: var(--primary); }
         
@@ -202,6 +202,7 @@
             font-weight: 700;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .badge-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -260,7 +261,7 @@
             border-radius: 6px;
         }
 
-        /* --- 5. RESPONSIVE DESIGN (Mobile Cards) --- */
+        /* --- 5. RESPONSIVE DESIGN (Fixed Mobile View) --- */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -284,33 +285,28 @@
                 display: block; 
             }
             
-            /* Hide Headers */
-            thead tr { 
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
+            /* Hide Headers visually but keep for accessibility/structure */
+            thead { 
+                display: none;
             }
             
             tr { 
                 border: 1px solid var(--border-color);
                 border-radius: 12px;
-                margin: 0 0 15px 0;
+                margin-bottom: 16px; /* Spacing between cards */
                 background: rgba(255,255,255,0.02);
+                overflow: hidden;
             }
             
             td { 
-                /* Behave like a "row" */
-                border: none;
-                position: relative;
-                padding: 12px 15px;
-                padding-left: 40%; 
-                text-align: right;
-                border-bottom: 1px solid rgba(255,255,255,0.03);
+                /* FLEXBOX MAGIC STARTS HERE */
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                padding: 12px 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.03);
                 text-align: right;
-                min-height: 50px;
+                min-height: auto;
             }
             
             td:last-child {
@@ -325,25 +321,51 @@
                 text-transform: uppercase;
                 font-size: 0.75rem;
                 text-align: left;
-                margin-right: 15px;
+                /* Crucial: Prevent label from shrinking or wrapping weirdly */
+                flex-shrink: 0; 
+                margin-right: 20px; 
             }
 
-            /* Specific styling adjustments for mobile card content */
-            .problem-link {
-                text-align: right;
+            /* Style specific cells for mobile better */
+            
+            /* Problem Title Cell */
+            td[data-label="Problem"] {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
             
+            td[data-label="Problem"]::before {
+                margin-bottom: 4px;
+            }
+
+            .problem-link {
+                text-align: left;
+                font-size: 1rem;
+            }
+
+            /* Align content in other cells to the right */
+            td:not([data-label="Problem"]) > * {
+                margin-left: auto; /* Pushes content to right in flex container */
+                text-align: right;
+            }
+
+            /* Badge adjustment */
             .badge {
                 margin-left: auto;
             }
 
             .table-responsive {
-                padding: 15px; /* Add space around cards */
+                padding: 0; 
             }
 
-            /* Fix meta text alignment on mobile */
-            .meta-text {
-                text-align: right;
+            /* Fix skeleton loader on mobile */
+            .skeleton-row td {
+                display: flex;
+                flex-direction: row;
+            }
+            .skeleton-row td div {
+                width: 100% !important; /* Force skeleton to fill space */
             }
         }
     </style>
@@ -450,11 +472,13 @@
                 
                 const tr = document.createElement('tr');
                 
-                // IMPORTANT: Added data-label attributes to each TD for Mobile CSS
+                // Keep data-labels for mobile CSS
                 tr.innerHTML = `
                     <td data-label="ID / Time">
-                        <div class="meta-text" style="font-weight: 600; color: #fff;">#${sub.id}</div>
-                        <div class="meta-text" style="font-size: 0.75rem; margin-top:4px;">${formatDate(sub.creationTimeSeconds)}</div>
+                        <div style="text-align: right;">
+                            <div class="meta-text" style="font-weight: 600; color: #fff;">#${sub.id}</div>
+                            <div class="meta-text" style="font-size: 0.75rem; margin-top:4px;">${formatDate(sub.creationTimeSeconds)}</div>
+                        </div>
                     </td>
                     <td data-label="Problem">
                         <a href="https://codeforces.com/contest/${sub.contestId}/problem/${sub.problem.index}" 
@@ -462,7 +486,7 @@
                            <span class="problem-index">${sub.problem.index}</span>
                            ${sub.problem.name}
                         </a>
-                        <div class="meta-text">Contest ${sub.contestId}</div>
+                        <div class="meta-text" style="text-align: left;">Contest ${sub.contestId}</div>
                     </td>
                     <td data-label="Rating">
                         ${sub.problem.rating 
@@ -489,7 +513,6 @@
             const from = (page - 1) * SUBMISSIONS_PER_PAGE + 1;
             
             try {
-                // Ensure this API endpoint is active/correct
                 const response = await fetch(`${API_BASE_URL}${currentHandle}/submissions?from=${from}&count=${SUBMISSIONS_PER_PAGE}`);
                 
                 if (!response.ok) throw new Error('Failed to fetch data');
