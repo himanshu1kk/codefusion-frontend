@@ -34,7 +34,6 @@
             font-family: var(--font-ui);
             background-color: var(--bg-body);
             color: var(--text-main);
-            /* Subtle background gradient for depth */
             background-image: radial-gradient(circle at top right, #1e1b4b, transparent 40%),
                               radial-gradient(circle at bottom left, #0f172a, transparent 40%);
             min-height: 100vh;
@@ -63,6 +62,8 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap; /* Allows wrapping on small screens */
+            gap: 15px;
         }
 
         .user-info h1 {
@@ -79,6 +80,7 @@
             background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            word-break: break-all; /* Prevents long handles from overflowing */
         }
 
         .back-button {
@@ -94,6 +96,7 @@
             font-weight: 500;
             transition: all 0.2s ease;
             text-decoration: none;
+            white-space: nowrap;
         }
         
         .back-button:hover {
@@ -107,20 +110,19 @@
             border-radius: 16px;
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden; /* For rounded corners */
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
         }
 
         .table-responsive {
-            overflow-x: auto;
             width: 100%;
+            /* overflow-x: auto;  Removed to allow card transform, handled via media query */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px; /* Prevent squishing */
         }
 
         thead {
@@ -153,16 +155,12 @@
             background-color: rgba(255, 255, 255, 0.02);
         }
 
-     
-        
-     
         .meta-text {
             color: var(--text-muted);
             font-size: 0.85rem;
             font-family: var(--font-code);
         }
 
-     
         .problem-link {
             color: var(--text-main);
             font-weight: 600;
@@ -173,7 +171,6 @@
         }
         .problem-link:hover { color: var(--primary); }
         
-       
         .problem-index {
             display: inline-block;
             font-family: var(--font-code);
@@ -185,20 +182,17 @@
             margin-right: 8px;
         }
 
-  
         .rating-tag {
             font-family: var(--font-code);
             font-weight: 700;
             color: #cbd5e1;
         }
 
-       
         .lang-tag {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
 
-       
         .badge {
             display: inline-flex;
             align-items: center;
@@ -216,7 +210,6 @@
         .badge-error { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
         .badge-default { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
 
-        
         .pagination {
             display: flex;
             justify-content: space-between;
@@ -242,7 +235,6 @@
         .btn-nav:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
         .btn-nav:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
 
-       
         .hidden { display: none !important; }
         
         .error-state {
@@ -255,7 +247,6 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-      
         @keyframes shimmer {
             0% { background-position: -1000px 0; }
             100% { background-position: 1000px 0; }
@@ -267,6 +258,93 @@
             background-size: 1200px 100%;
             animation: shimmer 2s infinite linear;
             border-radius: 6px;
+        }
+
+        /* --- 5. RESPONSIVE DESIGN (Mobile Cards) --- */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            /* Header Adjustments */
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .back-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Table to Card Transformation */
+            table, thead, tbody, th, td, tr { 
+                display: block; 
+            }
+            
+            /* Hide Headers */
+            thead tr { 
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            tr { 
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                margin: 0 0 15px 0;
+                background: rgba(255,255,255,0.02);
+            }
+            
+            td { 
+                /* Behave like a "row" */
+                border: none;
+                position: relative;
+                padding: 12px 15px;
+                padding-left: 40%; 
+                text-align: right;
+                border-bottom: 1px solid rgba(255,255,255,0.03);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: right;
+                min-height: 50px;
+            }
+            
+            td:last-child {
+                border-bottom: none;
+            }
+
+            /* The "Label" before the data */
+            td::before { 
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                text-align: left;
+                margin-right: 15px;
+            }
+
+            /* Specific styling adjustments for mobile card content */
+            .problem-link {
+                text-align: right;
+            }
+            
+            .badge {
+                margin-left: auto;
+            }
+
+            .table-responsive {
+                padding: 15px; /* Add space around cards */
+            }
+
+            /* Fix meta text alignment on mobile */
+            .meta-text {
+                text-align: right;
+            }
         }
     </style>
 </head>
@@ -321,11 +399,9 @@
         const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/'; 
         const SUBMISSIONS_PER_PAGE = 20; 
         
-        
         let currentHandle = '';
         let currentPage = 1;
 
-        
         const els = {
             handle: document.getElementById('reportHandle'),
             tbody: document.getElementById('submissionsBody'),
@@ -336,7 +412,6 @@
             pagination: document.getElementById('paginationControls')
         };
 
-       
         const getParam = (n) => new URLSearchParams(window.location.search).get(n);
         
         const formatDate = (unix) => {
@@ -355,16 +430,14 @@
             return [v.replace(/_/g, ' '), 'badge-default'];
         };
 
-    
-        
         const renderSkeleton = () => {
             els.tbody.innerHTML = Array(10).fill(0).map(() => `
                 <tr class="skeleton-row">
-                    <td><div style="width: 80%"></div></td>
-                    <td><div style="width: 60%; margin-bottom: 5px"></div><div style="width: 30%"></div></td>
-                    <td><div style="width: 50%"></div></td>
-                    <td><div style="width: 60%"></div></td>
-                    <td><div style="width: 70%"></div></td>
+                    <td data-label="ID / Time"><div style="width: 80%"></div></td>
+                    <td data-label="Problem"><div style="width: 60%; margin-bottom: 5px"></div><div style="width: 30%"></div></td>
+                    <td data-label="Rating"><div style="width: 50%"></div></td>
+                    <td data-label="Lang"><div style="width: 60%"></div></td>
+                    <td data-label="Verdict"><div style="width: 70%"></div></td>
                 </tr>
             `).join('');
         };
@@ -376,12 +449,14 @@
                 const [verdictText, verdictClass] = getVerdictStyle(sub.verdict);
                 
                 const tr = document.createElement('tr');
+                
+                // IMPORTANT: Added data-label attributes to each TD for Mobile CSS
                 tr.innerHTML = `
-                    <td>
+                    <td data-label="ID / Time">
                         <div class="meta-text" style="font-weight: 600; color: #fff;">#${sub.id}</div>
                         <div class="meta-text" style="font-size: 0.75rem; margin-top:4px;">${formatDate(sub.creationTimeSeconds)}</div>
                     </td>
-                    <td>
+                    <td data-label="Problem">
                         <a href="https://codeforces.com/contest/${sub.contestId}/problem/${sub.problem.index}" 
                            class="problem-link" target="_blank">
                            <span class="problem-index">${sub.problem.index}</span>
@@ -389,23 +464,21 @@
                         </a>
                         <div class="meta-text">Contest ${sub.contestId}</div>
                     </td>
-                    <td>
+                    <td data-label="Rating">
                         ${sub.problem.rating 
                             ? `<span class="rating-tag">${sub.problem.rating}</span>` 
                             : '<span style="color:#555">-</span>'}
                     </td>
-                    <td>
+                    <td data-label="Language">
                         <span class="lang-tag">${sub.programmingLanguage}</span>
                     </td>
-                    <td>
+                    <td data-label="Verdict">
                         <span class="badge ${verdictClass}">${verdictText}</span>
                     </td>
                 `;
                 els.tbody.appendChild(tr);
             });
         };
-
-     
 
         const fetchData = async (page) => {
             renderSkeleton();
@@ -416,7 +489,7 @@
             const from = (page - 1) * SUBMISSIONS_PER_PAGE + 1;
             
             try {
-               
+                // Ensure this API endpoint is active/correct
                 const response = await fetch(`${API_BASE_URL}${currentHandle}/submissions?from=${from}&count=${SUBMISSIONS_PER_PAGE}`);
                 
                 if (!response.ok) throw new Error('Failed to fetch data');
@@ -426,7 +499,6 @@
                     if (page === 1) {
                         els.tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">No submissions found.</td></tr>';
                     } else {
-                        
                         currentPage--; 
                         fetchData(currentPage);
                     }
@@ -435,7 +507,6 @@
 
                 renderRows(submissions);
 
-               
                 els.pageInfo.textContent = `Page ${page}`;
                 els.prevBtn.disabled = page === 1;
                 els.nextBtn.disabled = submissions.length < SUBMISSIONS_PER_PAGE;
@@ -447,7 +518,6 @@
             }
         };
 
-      
         currentHandle = getParam('handle');
         if (currentHandle) {
             els.handle.textContent = currentHandle;

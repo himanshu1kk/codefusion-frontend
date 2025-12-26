@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CFF Explorer | Enter the Matrix</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -22,19 +22,23 @@
             font-family: 'Outfit', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            height: 100vh;
+            /* UX Fix: Use min-height instead of fixed height to allow scrolling on small screens */
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            /* UX Fix: Allow vertical scroll, prevent horizontal scroll */
+            overflow-x: hidden;
+            overflow-y: auto; 
             position: relative;
+            padding: 20px; /* Add padding so card doesn't touch edges on mobile */
         }
 
         /* --- BACKGROUND EFFECTS --- */
-        /* Animated Grid */
+        /* Animated Grid - UX Fix: Fixed position to stay consistent during scroll */
         body::before {
             content: "";
-            position: absolute;
+            position: fixed; 
             width: 200%;
             height: 200%;
             background-image: 
@@ -45,17 +49,23 @@
             animation: moveGrid 20s linear infinite;
             z-index: -1;
             top: -50%;
+            left: -50%;
+            pointer-events: none; /* Ensure clicks pass through */
         }
 
-        /* Ambient Glow */
+        /* Ambient Glow - UX Fix: Fixed position */
         body::after {
             content: "";
-            position: absolute;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 600px;
             height: 600px;
             background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
             border-radius: 50%;
             z-index: -1;
+            pointer-events: none;
         }
 
         @keyframes moveGrid {
@@ -66,7 +76,7 @@
         /* --- CARD DESIGN --- */
         .container {
             text-align: center;
-            width: 90%;
+            width: 100%;
             max-width: 480px;
             padding: 50px 40px;
             background: rgba(15, 23, 42, 0.6);
@@ -78,6 +88,8 @@
             animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
             overflow: hidden;
+            /* UX Fix: Ensure card never overflows width */
+            margin: auto; 
         }
 
         /* Subtle shine effect on card */
@@ -89,6 +101,7 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
             transform: skewX(-25deg);
             transition: 0.5s;
+            pointer-events: none;
         }
         .container:hover::before { left: 100%; transition: 0.7s; }
 
@@ -100,6 +113,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
+            line-height: 1.2;
         }
 
         p.subtitle {
@@ -107,6 +121,7 @@
             margin-bottom: 40px;
             font-size: 1.1rem;
             font-weight: 300;
+            line-height: 1.5;
         }
 
         /* --- INPUT GROUP --- */
@@ -127,6 +142,8 @@
             outline: none;
             transition: all 0.3s ease;
             text-align: center;
+            /* UX Fix: Remove inner shadow on iOS inputs */
+            -webkit-appearance: none;
         }
 
         input::placeholder { color: rgba(255, 255, 255, 0.3); }
@@ -152,6 +169,8 @@
             font-family: inherit;
             position: relative;
             overflow: hidden;
+            /* UX Fix: Prevent double-tap zoom on mobile buttons */
+            touch-action: manipulation;
         }
 
         button:hover {
@@ -177,6 +196,7 @@
             opacity: 0;
             transition: opacity 0.3s;
             line-height: 1.5;
+            word-wrap: break-word; /* Prevent long error strings from breaking layout */
         }
 
         .error-text { color: var(--error-color); }
@@ -187,6 +207,8 @@
             font-weight: 600;
             border-bottom: 1px dashed var(--accent-primary);
             transition: opacity 0.2s;
+            display: inline-block;
+            margin-top: 5px;
         }
         .create-account-link:hover { opacity: 0.8; }
 
@@ -196,7 +218,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Shake animation for errors */
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
             border-color: var(--error-color) !important;
@@ -209,12 +230,11 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        /* Spinner */
         .spinner {
             width: 20px;
             height: 20px;
             border: 3px solid rgba(15, 23, 42, 0.3);
-            border-top-color: #0f172a; /* Dark color for contrast on button */
+            border-top-color: #0f172a;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: inline-block;
@@ -223,6 +243,38 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* --- MOBILE MEDIA QUERIES --- */
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 25px; /* Reduce internal padding */
+                width: 100%; 
+            }
+
+            h1 {
+                font-size: 2.2rem; /* Smaller font for title */
+            }
+
+            p.subtitle {
+                margin-bottom: 30px;
+                font-size: 1rem;
+            }
+
+            input {
+                padding: 16px 20px; /* Slightly smaller touch targets */
+                font-size: 1rem;
+            }
+
+            button {
+                padding: 16px;
+                font-size: 1rem;
+            }
+            
+            /* Fix background glow on mobile */
+            body::after {
+                width: 100vw;
+                height: 100vw;
+            }
+        }
     </style>
 </head>
 <body>
@@ -250,7 +302,6 @@
 
     btn.addEventListener('click', handleSearch);
     
-    // Remove error shake effect when user starts typing
     input.addEventListener('input', () => {
         input.classList.remove('shake');
         feedback.style.opacity = '0';
@@ -268,7 +319,6 @@
             return;
         }
 
-        // UI Loading State
         btn.disabled = true;
         btn.innerHTML = '<div class="spinner"></div> Checking...';
         feedback.style.opacity = '0';
@@ -278,18 +328,15 @@
             const response = await fetch(`${API_URL}${handle}`);
 
             if (response.ok) {
-                // ✅ SUCCESS → Smooth fade out before redirect
                 document.querySelector('.container').style.transform = 'scale(0.95)';
                 document.querySelector('.container').style.opacity = '0';
                 
                 setTimeout(() => {
-                   
                     window.location.href = `main.html?handle=${handle}`;
                 }, 300);
                 return;
             }
 
-            
             const errorData = await response.json().catch(() => ({}));
             console.log("the response is " + errorData.apiResponseCode);
             let errorMessage = "Connection failed. Please try again.";
@@ -297,7 +344,6 @@
             if (errorData?.message) errorMessage = errorData.message;
 
             if (errorData?.apiResponseCode === 4004) {
-                // Specific "User Not Found" HTML message
                 feedback.innerHTML = `
                     <span class="error-text">User <strong>"${handle}"</strong> not found.</span><br>
                     <a href="https://codeforces.com/register" target="_blank" class="create-account-link">Create Account ON Codeforces →</a>
@@ -312,7 +358,6 @@
             console.error(error);
             triggerError("Network error. Is the server running?");
         } finally {
-            // Reset Button (only if we didn't redirect)
             if (!document.querySelector('.container').style.opacity) {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Analyze Profile</span> 🚀';
@@ -323,9 +368,8 @@
     function triggerError(msg) {
         feedback.innerHTML = `<span class="error-text">${msg}</span>`;
         feedback.style.opacity = '1';
-        input.classList.add('shake'); // Adds the shaking animation
+        input.classList.add('shake');
         
-        // Re-enable button immediately for errors
         btn.disabled = false;
         btn.innerHTML = '<span>Analyze Profile</span> 🚀';
     }

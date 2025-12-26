@@ -76,6 +76,7 @@
             align-items: center;
             gap: 10px;
             text-decoration: none;
+            white-space: nowrap;
         }
 
         /* --- MODERN SEARCH BAR --- */
@@ -88,6 +89,7 @@
             padding: 5px 5px 5px 20px;
             width: 100%;
             max-width: 450px;
+            margin: 0 20px;
             transition: var(--transition);
         }
 
@@ -119,6 +121,7 @@
             justify-content: center;
             font-size: 1.1rem;
             transition: var(--transition);
+            flex-shrink: 0;
         }
 
         #searchButton:hover {
@@ -145,6 +148,7 @@
             align-items: center;
             gap: 6px;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         /* General Hover */
@@ -166,7 +170,7 @@
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        /* Analytics Button Specifics (New) */
+        /* Analytics Button Specifics */
         .nav-link-btn.analytics-btn {
             background: rgba(244, 114, 182, 0.05);
             border-color: rgba(244, 114, 182, 0.2);
@@ -244,6 +248,7 @@
             font-weight: 700;
             line-height: 1;
             margin-bottom: 10px;
+            word-break: break-all; /* Prevents overflow for long names */
         }
 
         .rank-badge {
@@ -295,15 +300,17 @@
 
         /* --- SUBMISSIONS TABLE --- */
         .table-container {
-            overflow-x: auto;
+            overflow-x: auto; /* Enables horizontal scroll */
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9rem;
+            white-space: nowrap; /* Keeps rows from wrapping weirdly */
         }
 
         th {
@@ -322,6 +329,17 @@
 
         tr:last-child td { border-bottom: none; }
         tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        /* Problem name handling */
+        .problem-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            display: block;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         /* Verdict Colors */
         .verdict-OK { color: var(--rank-pupil); font-weight: 600; }
@@ -442,13 +460,101 @@
             font-size: 0.85rem;
         }
 
+        /* --- MOBILE RESPONSIVENESS FIXES --- */
         @media (max-width: 768px) {
-            header { flex-direction: column; gap: 15px; padding: 20px; }
-            .search-container { margin: 0; width: 100%; }
-            .nav-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
-            .summary-content { flex-direction: column; text-align: center; }
-            .actions-row { justify-content: center; flex-wrap: wrap; }
-            td:nth-child(4), th:nth-child(4), td:nth-child(6), th:nth-child(6) { display: none; }
+            /* Header Stack */
+            header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 20px;
+            }
+
+            .search-container {
+                margin: 0;
+                width: 100%;
+                max-width: none;
+            }
+
+            .nav-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .nav-link-btn {
+                flex: 1; /* Buttons share width */
+                justify-content: center;
+                min-width: 100px;
+            }
+
+            /* Main Layout */
+            main {
+                width: 95%;
+                margin: 20px auto;
+                gap: 20px;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            /* Summary Section Stack */
+            .summary-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .user-meta {
+                width: 100%;
+            }
+
+            .handle-title {
+                font-size: 2rem;
+            }
+
+            /* Stats Grid - Force 2 Columns on mobile */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+
+            /* Info Grid - Single column often better on very small screens */
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Table Adjustments */
+            th, td {
+                padding: 12px 10px;
+                font-size: 0.85rem;
+            }
+
+            /* Hide less important columns to save space, 
+               but rely on scroll for the rest */
+            th:nth-child(4), td:nth-child(4), /* Lang */
+            th:nth-child(5), td:nth-child(5)  /* Time */
+            {
+                display: none; 
+            }
+            
+            /* Allow problem name to shrink on mobile */
+            .problem-link {
+                max-width: 140px; 
+            }
+
+            .actions-row {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -570,8 +676,7 @@
                 const el = document.getElementById(id);
                 if(el) el.classList.toggle('hidden', !visible);
             };
-            //
-
+            
             const timeConverter = (unix, dateOnly = false) => {
                 if (!unix) return 'N/A';
                 const d = new Date(unix * 1000);
@@ -724,7 +829,7 @@
                         <td>
                             <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}" 
                                target="_blank" 
-                               style="color: var(--text-main); text-decoration: none; font-weight: 500;">
+                               class="problem-link">
                                ${probName}
                             </a>
                         </td>
