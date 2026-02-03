@@ -2,378 +2,314 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CFF Explorer | Enter the Matrix</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFF Explorer | Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+  
         :root {
-            --bg-dark: #0f172a;
-            --accent-primary: #38bdf8; /* Sky Blue */
-            --accent-glow: rgba(56, 189, 248, 0.5);
-            --error-color: #f87171; /* Soft Red */
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            /* UX Fix: Use min-height instead of fixed height to allow scrolling on small screens */
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* UX Fix: Allow vertical scroll, prevent horizontal scroll */
-            overflow-x: hidden;
-            overflow-y: auto; 
-            position: relative;
-            padding: 20px; /* Add padding so card doesn't touch edges on mobile */
-        }
-
-        /* --- BACKGROUND EFFECTS --- */
-        /* Animated Grid - UX Fix: Fixed position to stay consistent during scroll */
-        body::before {
-            content: "";
-            position: fixed; 
-            width: 200%;
-            height: 200%;
+            background-color: #020617;
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: perspective(500px) rotateX(60deg);
-            animation: moveGrid 20s linear infinite;
-            z-index: -1;
-            top: -50%;
-            left: -50%;
-            pointer-events: none; /* Ensure clicks pass through */
+                radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 60%),
+                radial-gradient(circle at 0% 100%, #312e81 0%, transparent 50%);
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #fff;
         }
 
-        /* Ambient Glow - UX Fix: Fixed position */
-        body::after {
-            content: "";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        @keyframes moveGrid {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-        }
-
-        /* --- CARD DESIGN --- */
-        .container {
-            text-align: center;
-            width: 100%;
-            max-width: 480px;
-            padding: 50px 40px;
-            background: rgba(15, 23, 42, 0.6);
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            /* UX Fix: Ensure card never overflows width */
-            margin: auto; 
         }
 
-        /* Subtle shine effect on card */
-        .container::before {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-25deg);
-            transition: 0.5s;
-            pointer-events: none;
-        }
-        .container:hover::before { left: 100%; transition: 0.7s; }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-            background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-            line-height: 1.2;
-        }
-
-        p.subtitle {
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-            font-weight: 300;
-            line-height: 1.5;
-        }
-
-        /* --- INPUT GROUP --- */
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        input {
-            width: 100%;
-            padding: 18px 25px;
-            border-radius: 14px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            font-size: 1.1rem;
-            font-family: inherit;
-            outline: none;
+        /* Input Styling */
+        .cff-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
             transition: all 0.3s ease;
-            text-align: center;
-            /* UX Fix: Remove inner shadow on iOS inputs */
-            -webkit-appearance: none;
+        }
+        .cff-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            background: rgba(15, 23, 42, 0.9);
         }
 
-        input::placeholder { color: rgba(255, 255, 255, 0.3); }
-
-        input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-            background: rgba(0, 0, 0, 0.5);
+        /* OTP Letter Spacing */
+        .tracking-otp {
+            letter-spacing: 0.75rem;
         }
 
-        /* --- BUTTON --- */
-        button {
-            width: 100%;
-            padding: 18px;
-            border-radius: 14px;
-            border: none;
-            background: linear-gradient(135deg, var(--accent-primary), #0284c7);
-            color: #0f172a;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
-            /* UX Fix: Prevent double-tap zoom on mobile buttons */
-            touch-action: manipulation;
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4);
-        }
-
-        button:active { transform: translateY(-1px); }
-
-        button:disabled {
-            background: #334155;
-            color: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* --- FEEDBACK --- */
-        .feedback-message {
-            margin-top: 20px;
-            font-size: 0.95rem;
-            min-height: 24px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            line-height: 1.5;
-            word-wrap: break-word; /* Prevent long error strings from breaking layout */
-        }
-
-        .error-text { color: var(--error-color); }
+        /* Animation Utilities */
+        .hidden-stage { display: none; }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        .create-account-link {
-            color: var(--accent-primary);
-            text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px dashed var(--accent-primary);
-            transition: opacity 0.2s;
-            display: inline-block;
-            margin-top: 5px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-        .create-account-link:hover { opacity: 0.8; }
-
-        /* --- ANIMATIONS --- */
-        @keyframes floatUp {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-            border-color: var(--error-color) !important;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
+        /* Loading Spinner */
         .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-left-color: white;
+            border-radius: 50%;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(15, 23, 42, 0.3);
-            border-top-color: #0f172a;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* --- MOBILE MEDIA QUERIES --- */
-        @media (max-width: 600px) {
-            .container {
-                padding: 40px 25px; /* Reduce internal padding */
-                width: 100%; 
-            }
-
-            h1 {
-                font-size: 2.2rem; /* Smaller font for title */
-            }
-
-            p.subtitle {
-                margin-bottom: 30px;
-                font-size: 1rem;
-            }
-
-            input {
-                padding: 16px 20px; /* Slightly smaller touch targets */
-                font-size: 1rem;
-            }
-
-            button {
-                padding: 16px;
-                font-size: 1rem;
-            }
-            
-            /* Fix background glow on mobile */
-            body::after {
-                width: 100vw;
-                height: 100vw;
-            }
-        }
     </style>
 </head>
-<body>
+<body class="min-h-screen w-full flex items-center justify-center p-4">
 
-    <div class="container">
-        <h1>CFF Explorer</h1>
-        <p class="subtitle">Enter the Matrix of Competitive Programming</p>
+    <div class="glass-panel w-full max-w-md p-8 rounded-3xl relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
 
-        <div class="input-wrapper">
-            <input type="text" id="handleInput" placeholder="Enter Codeforces Handle..." autocomplete="off">
+        <div class="text-center mb-10 relative z-10">
+            <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+                <i class="fa-solid fa-atom text-3xl text-blue-400"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-white">CFF Explorer</h1>
+            <p class="text-slate-400 text-sm mt-2">Initialize User Protocol</p>
         </div>
 
-        <button id="searchBtn">
-            <span>Analyze Profile</span> 🚀
-        </button>
+        <div id="stage-register" class="slide-up">
+            <form id="formRegister" onsubmit="submitRegistration(event)">
+                <div class="mb-5 group">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-blue-400 transition-colors">Pilot Name</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-user absolute left-4 top-4 text-slate-500"></i>
+                        <input type="text" id="regName" required
+                            class="cff-input w-full rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none"
+                            placeholder="Ex. Commander Shepard">
+                    </div>
+                </div>
 
-        <div id="feedback" class="feedback-message"></div>
+                <div class="mb-5 group">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-blue-400 transition-colors">Comms Frequency (Email)</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-envelope absolute left-4 top-4 text-slate-500"></i>
+                        <input type="email" id="regEmail" required
+                            class="cff-input w-full rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none"
+                            placeholder="pilot@cff-fusions.com">
+                    </div>
+                </div>
+
+                <div class="mb-8 group">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-focus-within:text-blue-400 transition-colors">Security Key</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-shield-halved absolute left-4 top-4 text-slate-500"></i>
+                        <input type="password" id="regPassword" required
+                            class="cff-input w-full rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none"
+                            placeholder="••••••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnRegister"
+                    class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] flex justify-center items-center gap-2">
+                    <span>Initialize Registration</span>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-xs text-slate-500">Already operational? <a href="/codeforgood/codeLogin.html" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">Log in here</a></p>
+            </div>
+        </div>
+
+        <div id="stage-verify" class="hidden-stage">
+            <div class="text-center mb-8">
+                <div class="inline-block px-4 py-2 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-300 text-xs mb-4">
+                    <i class="fa-regular fa-paper-plane mr-2"></i>Code sent via email
+                </div>
+                <p class="text-slate-400 text-sm">Please enter the 6-digit security code sent to:</p>
+                <p id="displayEmail" class="text-white font-mono mt-1 text-sm tracking-wide"></p>
+            </div>
+
+            <form id="formVerify" onsubmit="submitVerification(event)">
+                <div class="mb-8 flex justify-center">
+                    <input type="text" id="otpInput" maxlength="6" required
+                        class="cff-input w-48 text-center text-2xl font-mono text-white tracking-otp rounded-xl py-3 outline-none focus:border-green-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)] placeholder-slate-700"
+                        placeholder="000000">
+                </div>
+
+                <button type="submit" id="btnVerify"
+                    class="w-full bg-green-600 hover:bg-green-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(5,150,105,0.3)] flex justify-center items-center gap-2">
+                    <span>Verify Identity</span>
+                    <i class="fa-solid fa-fingerprint"></i>
+                </button>
+            </form>
+
+            <button onclick="restartFlow()" class="w-full mt-6 text-xs text-slate-500 hover:text-white transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Change Coordinates (Email)
+            </button>
+        </div>
+
+        <div id="stage-success" class="hidden-stage text-center py-6">
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30 shadow-[0_0_40px_rgba(16,185,129,0.4)] animate-bounce">
+                <i class="fa-solid fa-check text-4xl text-green-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Access Granted</h2>
+            <p class="text-slate-400 text-sm mb-8">Welcome to the Fusion, Commander.</p>
+            
+            <a href="/codeLogin.html" class="block w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold py-3.5 rounded-xl transition-all">
+                Enter Dashboard
+            </a>
+        </div>
+
+        <div id="toast" class="absolute bottom-4 left-4 right-4 bg-red-500/90 backdrop-blur-md text-white text-sm p-4 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 border border-red-400/50 flex items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="toastMsg">Error message here</span>
+        </div>
+
     </div>
 
     <script>
-    const input = document.getElementById('handleInput');
-    const btn = document.getElementById('searchBtn');
-    const feedback = document.getElementById('feedback');
-    const API_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
-
-    btn.addEventListener('click', handleSearch);
-    
-    input.addEventListener('input', () => {
-        input.classList.remove('shake');
-        feedback.style.opacity = '0';
-    });
-
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
-
-    async function handleSearch() {
-        const handle = input.value.trim();
-
-        if (!handle) {
-            triggerError("Please enter a handle first.");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<div class="spinner"></div> Checking...';
-        feedback.style.opacity = '0';
-        input.classList.remove('shake');
-
-        try {
-            const response = await fetch(`${API_URL}${handle}`);
-
-            if (response.ok) {
-                document.querySelector('.container').style.transform = 'scale(0.95)';
-                document.querySelector('.container').style.opacity = '0';
-                
-                setTimeout(() => {
-                    window.location.href = `main.html?handle=${handle}`;
-                }, 300);
-                return;
-            }
-
-            const errorData = await response.json().catch(() => ({}));
-            console.log("the response is " + errorData.apiResponseCode);
-            let errorMessage = "Connection failed. Please try again.";
-
-            if (errorData?.message) errorMessage = errorData.message;
-
-            if (errorData?.apiResponseCode === 4004) {
-                feedback.innerHTML = `
-                    <span class="error-text">User <strong>"${handle}"</strong> not found.</span><br>
-                    <a href="https://codeforces.com/register" target="_blank" class="create-account-link">Create Account ON Codeforces →</a>
-                `;
-                feedback.style.opacity = '1';
-                input.classList.add('shake');
-            } else {
-                triggerError(errorMessage);
-            }
-
-        } catch (error) {
-            console.error(error);
-            triggerError("Network error. Is the server running?");
-        } finally {
-            if (!document.querySelector('.container').style.opacity) {
-                btn.disabled = false;
-                btn.innerHTML = '<span>Analyze Profile</span> 🚀';
-            }
-        }
-    }
-
-    function triggerError(msg) {
-        feedback.innerHTML = `<span class="error-text">${msg}</span>`;
-        feedback.style.opacity = '1';
-        input.classList.add('shake');
         
-        btn.disabled = false;
-        btn.innerHTML = '<span>Analyze Profile</span> 🚀';
-    }
-    </script>
+        const API_BASE = 'https://codefusion-backend-tzj4.onrender.com/api/v1/auth';
+        let userEmailCache = "";
 
+        
+        const stages = {
+            register: document.getElementById('stage-register'),
+            verify: document.getElementById('stage-verify'),
+            success: document.getElementById('stage-success')
+        };
+        const toast = document.getElementById('toast');
+
+        
+        function switchStage(from, to) {
+            from.classList.add('hidden-stage');
+            to.classList.remove('hidden-stage');
+            to.classList.add('fade-in');
+        }
+
+       
+        function setLoading(btnId, isLoading, defaultText) {
+            const btn = document.getElementById(btnId);
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = '<div class="spinner"></div>';
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = defaultText;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+      
+        function showToast(msg) {
+            const el = document.getElementById('toastMsg');
+            el.textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 4000);
+        }
+
+        
+        async function submitRegistration(e) {
+            e.preventDefault();
+            const btnDefault = `<span>Initialize Registration</span> <i class="fa-solid fa-chevron-right text-xs"></i>`;
+            
+            const payload = {
+                Name: document.getElementById('regName').value,
+                Email: document.getElementById('regEmail').value,
+                Password: document.getElementById('regPassword').value
+            };
+
+            setLoading('btnRegister', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                  
+                    const errMsg = data.message || data.error || data.detail || "Registration Failed";
+                    throw new Error(errMsg);
+                }
+
+       
+                userEmailCache = payload.Email;
+                document.getElementById('displayEmail').textContent = userEmailCache;
+                switchStage(stages.register, stages.verify);
+
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                setLoading('btnRegister', false, btnDefault);
+            }
+        }
+
+        
+        async function submitVerification(e) {
+            e.preventDefault();
+            const btnDefault = `<span>Verify Identity</span> <i class="fa-solid fa-fingerprint"></i>`;
+            
+            const payload = {
+                Email: userEmailCache,
+                Otp: document.getElementById('otpInput').value
+            };
+
+            setLoading('btnVerify', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const errMsg = data.message || data.error || "Verification Failed";
+                    throw new Error(errMsg);
+                }
+
+              
+                switchStage(stages.verify, stages.success);
+
+            } catch (err) {
+                showToast(err.message);
+          
+                const input = document.getElementById('otpInput');
+                input.classList.add('border-red-500', 'text-red-400');
+                setTimeout(() => input.classList.remove('border-red-500', 'text-red-400'), 2000);
+            } finally {
+                setLoading('btnVerify', false, btnDefault);
+            }
+        }
+
+        
+        function restartFlow() {
+            switchStage(stages.verify, stages.register);
+            document.getElementById('regEmail').focus();
+        }
+    </script>
 </body>
 </html>
