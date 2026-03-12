@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Practice Deck | CFF Explorer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-bg: #1e293b;
             --accent-primary: #38bdf8;
-            --accent-secondary: #818cf8; /* Indigo */
+            --accent-secondary: #818cf8; 
             --accent-glow: rgba(56, 189, 248, 0.3);
             --error-color: #f87171;
             --success-color: #22c55e;
@@ -37,8 +37,8 @@
             width: 100%; height: 100%;
             z-index: -1;
             background: 
-                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
             pointer-events: none;
         }
 
@@ -53,8 +53,7 @@
         /* --- SIDEBAR (CONTROLS) --- */
         aside {
             width: 320px;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(15px);
+            background: rgba(15, 23, 42, 0.95);
             border-right: 1px solid var(--border-color);
             padding: 30px;
             display: flex;
@@ -167,7 +166,7 @@
         /* Problem Grid */
         .problem-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
             padding-bottom: 80px; /* Space for pagination */
         }
@@ -180,73 +179,118 @@
             padding: 20px;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
 
         .card:hover {
             border-color: var(--accent-primary);
             transform: translateY(-4px);
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-            background: rgba(30, 41, 59, 0.9);
         }
 
         .card-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .problem-index {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
+            color: var(--text-main);
         }
 
         .problem-rating {
             font-weight: 700;
-            color: var(--accent-secondary);
+            font-size: 0.9rem;
         }
 
         .problem-name {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 15px;
             line-height: 1.4;
+            flex-grow: 1; /* Pushes footer down */
         }
 
         .tags-container {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: auto; /* Push to bottom */
+            margin-bottom: 20px;
         }
 
         .tag {
             font-size: 0.75rem;
             padding: 3px 8px;
             border-radius: 10px;
-            background: rgba(56, 189, 248, 0.1);
+            background: rgba(56, 189, 248, 0.08);
             color: var(--accent-primary);
-            border: 1px solid rgba(56, 189, 248, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+        }
+
+        /* Card Footer / Actions */
+        .card-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-card-action {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-note {
+            background: var(--accent-primary);
+            color: #0f172a;
+            border: none;
+        }
+        .btn-note:hover {
+            background: #7dd3fc;
+        }
+
+        .btn-view {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        .btn-view:hover {
+            border-color: var(--text-muted);
+            color: var(--text-main);
         }
 
         /* --- PAGINATION --- */
         .pagination {
             position: absolute;
             bottom: 0; left: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             padding: 15px 40px;
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(10px);
         }
 
         .page-btn {
@@ -267,7 +311,7 @@
             cursor: default;
         }
 
-        /* Loading, Empty & Welcome States */
+        /* Loading & Empty States */
         .state-message {
             text-align: center;
             padding: 60px;
@@ -299,7 +343,7 @@
         @media (max-width: 900px) {
             .main-wrapper { flex-direction: column; height: auto; overflow: auto; }
             aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-            main { overflow: visible; }
+            main { overflow: visible; padding: 20px; }
             .pagination { position: fixed; bottom: 0; }
         }
     </style>
@@ -310,7 +354,7 @@
 
     <div class="main-wrapper">
         <aside>
-            <div class="brand" onclick="window.location.href='main.html'">
+            <div class="brand">
                 <span>&lt;/&gt;</span> CFF.Practice
             </div>
 
@@ -354,33 +398,14 @@
                         <option value="strongly connected components">SCC</option>
                         <option value="flows">Flows</option>
                     </optgroup>
-
-                    <optgroup label="Math / Theory">
-                        <option value="number theory">Number Theory</option>
-                        <option value="combinatorics">Combinatorics</option>
-                        <option value="probabilities">Probabilities</option>
-                        <option value="geometry">Geometry</option>
-                        <option value="bitmasks">Bitmasks</option>
-                        <option value="fft">FFT</option>
-                        <option value="games">Games</option>
-                    </optgroup>
-
-                    <optgroup label="Advanced / Special">
-                        <option value="interactive">Interactive</option>
-                        <option value="string suffix structures">Suffix Structures</option>
-                        <option value="meet-in-the-middle">Meet-in-the-middle</option>
-                        <option value="divide and conquer">Divide & Conquer</option>
-                        <option value="ternary search">Ternary Search</option>
-                        <option value="chinese remainder theorem">CRT</option>
-                    </optgroup>
                 </select>
             </div>
 
             <div class="control-group">
-                <label>Rating Range (800 - 5000)</label>
+                <label>Rating Range (800 - 3500)</label>
                 <div class="rating-row">
-                    <input type="number" id="minRating" placeholder="Min (800)" min="800" max="5000">
-                    <input type="number" id="maxRating" placeholder="Max (5000)" min="800" max="5000">
+                    <input type="number" id="minRating" placeholder="Min" min="800" max="3500">
+                    <input type="number" id="maxRating" placeholder="Max" min="800" max="3500">
                 </div>
                 <div id="validationMsg" class="error-msg"></div>
             </div>
@@ -409,8 +434,12 @@
 
   <script>
         // --- CONFIG ---
-        //https://codefusion-backend-tzj4.onrender.com/
         const API_URL = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf/problems';
+        
+        // IMPORTANT: Ensure your Journal/Notes file is named exactly this, 
+        // or update this variable to match your filename.
+        const JOURNAL_PAGE_URL = 'notes.html'; 
+
         let currentPage = 1;
         const pageSize = 20;
 
@@ -461,11 +490,6 @@
                 return false;
             }
 
-            if (maxInput.value && maxVal > 5000) {
-                showError("Maximum rating allowed is 5000.");
-                return false;
-            }
-
             if (minInput.value && maxInput.value && minVal > maxVal) {
                 showError("Min rating cannot exceed Max rating.");
                 return false;
@@ -485,7 +509,7 @@
                 <div class="state-message">
                     <h3 style="color: var(--accent-primary); font-size: 1.5rem; margin-bottom: 10px;">Ready to Practice?</h3>
                     <p style="color: var(--text-muted); max-width: 400px; line-height: 1.6;">
-                        Please select a category and your desired difficulty range from the sidebar, then click 
+                        Select a category and difficulty range, then click 
                         <strong style="color: var(--text-main)">Initialize Search</strong>.
                     </p>
                 </div>
@@ -505,8 +529,6 @@
             `;
             applyBtn.disabled = true;
 
-            // Build Query
-            // Use empty string fallback if tag is null/undefined
             const tag = tagSelect.value || ""; 
             const min = minInput.value;
             const max = maxInput.value;
@@ -516,10 +538,7 @@
                 pageSize: pageSize
             });
 
-            // UPDATED: Always append 'tag', even if empty.
-            // This ensures the backend receives '&tag=' instead of missing the key.
             params.append('tag', tag);
-
             if (min) params.append('minRating', min);
             if (max) params.append('maxRating', max);
 
@@ -527,18 +546,13 @@
                 const res = await fetch(`${API_URL}?${params.toString()}`);
                 
                 if (!res.ok) {
-                    // Try to parse the error message from the backend JSON response
                     let errorDetails = "Server communication failed.";
                     try {
                         const errorJson = await res.json();
-                        // Handle the specific RFC validation error format you showed
                         if (errorJson.errors && errorJson.errors.tag) {
-                             errorDetails = `Backend Validation: ${errorJson.errors.tag[0]}`;
-                        } else if (errorJson.title) {
-                             errorDetails = errorJson.title;
+                             errorDetails = `Validation: ${errorJson.errors.tag[0]}`;
                         }
-                    } catch (e) { /* ignore JSON parse error */ }
-                    
+                    } catch (e) { }
                     throw new Error(errorDetails);
                 }
 
@@ -546,7 +560,6 @@
                 renderResults(data);
 
             } catch (err) {
-                console.error(err);
                 grid.innerHTML = `
                     <div class="state-message">
                         <h3 style="color: var(--error-color); margin-bottom: 10px;">System Failure</h3>
@@ -570,8 +583,8 @@
             if (!items || items.length === 0) {
                 grid.innerHTML = `
                     <div class="state-message">
-                        <h3 style="color: var(--text-muted); margin-bottom: 10px;">Void Sector</h3>
-                        <p style="color: #64748b">No problems found matching these parameters.</p>
+                        <h3 style="color: var(--text-muted);">Void Sector</h3>
+                        <p style="color: #64748b">No problems found.</p>
                     </div>
                 `;
                 return;
@@ -580,10 +593,8 @@
             grid.innerHTML = ''; 
 
             items.forEach(problem => {
-                const card = document.createElement('a');
+                const card = document.createElement('div');
                 card.className = 'card';
-                card.target = '_blank';
-                card.href = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
 
                 let ratingColor = '#94a3b8'; 
                 if (problem.rating >= 2400) ratingColor = '#ef4444'; 
@@ -597,6 +608,10 @@
                     `<span class="tag">${t}</span>`
                 ).join('');
 
+                const cfLink = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
+                // This constructs the URL to your Journal Page with data attached
+                const noteLink = `${JOURNAL_PAGE_URL}?contestId=${problem.contestId}&index=${problem.index}`;
+
                 card.innerHTML = `
                     <div class="card-top">
                         <span class="problem-index">${problem.contestId}${problem.index}</span>
@@ -604,10 +619,21 @@
                             ${problem.rating ? problem.rating : 'N/A'}
                         </span>
                     </div>
+                    
                     <div class="problem-name">${problem.name}</div>
+                    
                     <div class="tags-container">
                         ${tagsHtml}
                         ${problem.tags.length > 3 ? '<span class="tag">...</span>' : ''}
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="${noteLink}" class="btn-card-action btn-note">
+                            <span>✎</span> Write Note
+                        </a>
+                        <a href="${cfLink}" target="_blank" class="btn-card-action btn-view">
+                            View on CF ↗
+                        </a>
                     </div>
                 `;
 

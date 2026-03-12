@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal | CFF Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- BACKGROUND --- */
+        .background-matrix {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.05) 0%, transparent 30%),
+                radial-gradient(circle at 20% 90%, rgba(129, 140, 248, 0.05) 0%, transparent 30%);
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: var(--text-main); }
+        .brand span { color: var(--accent-secondary); }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+        .nav-link:hover { color: var(--accent-primary); }
+
+        /* --- LAYOUT --- */
+        .container {
+            flex: 1; display: flex; gap: 30px; padding: 40px;
+            max-width: 1600px; margin: 0 auto; width: 100%; height: 100%;
+        }
+
+        /* --- LEFT PANEL (METADATA) --- */
+        .meta-panel {
+            width: 350px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;
+            overflow-y: auto;
+        }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
+        h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: var(--accent-primary); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block; }
+        input {
+            width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
+            color: #fff; padding: 12px; border-radius: 8px; outline: none; font-family: 'JetBrains Mono', monospace;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
+        .btn-primary {
+            width: 100%; background: linear-gradient(135deg, var(--accent-secondary), #4f46e5);
+            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        #problemInfo { display: none; flex-direction: column; gap: 12px; }
+        #problemInfo.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-row { display: flex; justify-content: space-between; align-items: center; }
+        .info-label { color: var(--text-muted); font-size: 0.9rem; }
+        .info-value { font-weight: 700; }
+
+        .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+        .tag { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); }
+
+        .cf-link {
+            display: block; margin-top: 15px; text-align: center; font-size: 0.9rem; color: var(--accent-primary);
+            text-decoration: none; border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px; border-radius: 6px; transition: 0.2s;
+        }
+        .cf-link:hover { background: rgba(56, 189, 248, 0.1); }
+
+        /* --- RIGHT PANEL (EDITOR) --- */
+        .editor-panel {
+            flex: 1; display: flex; flex-direction: column; background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;
+        }
+
+        .editor-toolbar {
+            padding: 15px 25px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .toolbar-left { display: flex; align-items: center; gap: 15px; }
+        
+        .btn-save {
+            background-color: var(--success-color); color: #fff; font-weight: 600;
+            border: none; padding: 8px 24px; border-radius: 6px; cursor: pointer;
+            font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-save:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-save:disabled { background-color: #334155; color: #94a3b8; cursor: not-allowed; }
+
+        .status-indicator { font-size: 0.85rem; color: var(--text-muted); }
+
+        textarea {
+            flex: 1; background: transparent; border: none; color: var(--text-main);
+            padding: 25px; font-size: 1rem; line-height: 1.6; resize: none; outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+        /* --- TOAST NOTIFICATIONS --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .toast {
+            padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease forwards;
+        }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--error-color); }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+
+        @media (max-width: 900px) {
+            body { height: auto; overflow: auto; }
+            .container { flex-direction: column; padding: 20px; }
+            .meta-panel { width: 100%; }
+            .editor-panel { min-height: 60vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-matrix"></div>
+
+    <nav>
+        <a href="/" class="brand"><span>&lt;/&gt;</span> CFF.Journal</a>
+        <a href="/" class="nav-link">← Back to Practice</a>
+    </nav>
+
+    <div class="container">
+        
+        <div class="meta-panel">
+            <div class="card">
+                <h3>Select Problem</h3>
+                <div class="input-group">
+                    <label class="input-label">Contest ID</label>
+                    <input type="number" id="inpContestId" placeholder="e.g. 1352">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Problem Index</label>
+                    <input type="text" id="inpIndex" placeholder="e.g. C">
+                </div>
+                <button id="btnFetch" class="btn-primary">FETCH DETAILS</button>
+            </div>
+
+            <div id="problemInfo" class="card">
+                <div class="info-row"><span class="info-label">Problem</span></div>
+                <div class="info-value" id="dispName" style="font-size: 1.1rem; margin-bottom: 5px;">-</div>
+
+                <div class="info-row">
+                    <span class="info-label">Rating</span>
+                    <span class="info-value" id="dispRating">-</span>
+                </div>
+
+                <div class="tag-cloud" id="dispTags"></div>
+                <a href="#" target="_blank" id="dispLink" class="cf-link">Open in Codeforces ↗</a>
+            </div>
+        </div>
+
+        <div class="editor-panel">
+            <div class="editor-toolbar">
+                <div class="toolbar-left">
+                    <span style="font-weight:600; color:var(--text-main)">Notes & Observations</span>
+                    <span class="status-indicator" id="saveStatusText">Waiting for problem...</span>
+                </div>
+                <button id="btnSave" class="btn-save" disabled>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Save Note
+                </button>
+            </div>
+            <textarea id="notesArea" placeholder="Write your logic, edge cases, and time complexity analysis here..." disabled></textarea>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        // --- CONFIGURATION ---
+const API_BASE_URL = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf/notes';
+        // --- DOM ELEMENTS ---
+        const inpContestId = document.getElementById('inpContestId');
+        const inpIndex = document.getElementById('inpIndex');
+        const btnFetch = document.getElementById('btnFetch');
+        const btnSave = document.getElementById('btnSave');
+        
+        const problemInfo = document.getElementById('problemInfo');
+        const dispName = document.getElementById('dispName');
+        const dispRating = document.getElementById('dispRating');
+        const dispTags = document.getElementById('dispTags');
+        const dispLink = document.getElementById('dispLink');
+
+        const notesArea = document.getElementById('notesArea');
+        const saveStatusText = document.getElementById('saveStatusText');
+        const toastContainer = document.getElementById('toast-container');
+
+        let currentContestId = null;
+        let currentIndex = null;
+
+        // --- TOAST UTILITY ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- 1. FETCH LOGIC ---
+        btnFetch.addEventListener('click', async () => {
+            const cid = inpContestId.value.trim();
+            const idx = inpIndex.value.trim().toUpperCase();
+
+            if (!cid || !idx) {
+                showToast("Please enter both Contest ID and Problem Index", "error");
+                return;
+            }
+
+            // UI State: Loading
+            btnFetch.innerText = "LOADING...";
+            btnFetch.disabled = true;
+            btnSave.disabled = true;
+            notesArea.disabled = true;
+            notesArea.value = ""; 
+            saveStatusText.innerText = "Fetching data...";
+
+            try {
+                // A. Fetch Metadata from Codeforces
+                const cfResponse = await fetch(`https://codeforces.com/api/contest.standings?contestId=${cid}&from=1&count=1`);
+                const cfData = await cfResponse.json();
+
+                if (cfData.status !== 'OK') throw new Error("Problem not found on Codeforces");
+
+                const problem = cfData.result.problems.find(p => p.index === idx);
+                if (!problem) throw new Error(`Problem ${idx} not found in Contest ${cid}`);
+
+                // Update UI
+                renderProblemData(problem);
+                currentContestId = cid;
+                currentIndex = idx;
+
+                // B. Fetch Existing Note from YOUR .NET Backend
+                try {
+                    const noteResponse = await fetch(`${API_BASE_URL}/${cid}/${idx}`);
+                    
+                    if (noteResponse.ok) {
+                        const noteData = await noteResponse.json();
+                        // Depending on your JSON serializer settings, it might be camelCase or PascalCase
+                        notesArea.value = noteData.notes || noteData.Notes || "";
+                        saveStatusText.innerText = "Loaded from Cloud";
+                    } else if (noteResponse.status === 404) {
+                        notesArea.value = ""; 
+                        saveStatusText.innerText = "New Note";
+                    } else {
+                        saveStatusText.innerText = "Failed to sync";
+                    }
+                } catch (backendErr) {
+                    console.error("Backend Error:", backendErr);
+                    saveStatusText.innerText = "Offline Mode";
+                    showToast("Could not connect to backend server.", "error");
+                }
+
+                // Enable Editor
+                btnSave.disabled = false;
+                notesArea.disabled = false;
+                notesArea.focus();
+
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, "error");
+                problemInfo.classList.remove('active');
+                currentContestId = null;
+                saveStatusText.innerText = "Error";
+            } finally {
+                btnFetch.innerText = "FETCH DETAILS";
+                btnFetch.disabled = false;
+            }
+        });
+
+        // --- 2. SAVE LOGIC ---
+        btnSave.addEventListener('click', async () => {
+            if (!currentContestId || !currentIndex) return;
+
+            const content = notesArea.value;
+            const originalText = btnSave.innerHTML;
+            
+            // UI Feedback
+            btnSave.innerHTML = `Saving...`;
+            btnSave.disabled = true;
+            saveStatusText.innerText = "Saving...";
+
+            try {
+                // Matches your C# CreateNoteDto exactly
+                const payload = {
+                    contestId: parseInt(currentContestId),
+                    index: currentIndex,
+                    notes: content      
+                };
+
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) { // Handles the Ok() 200 response from C#
+                    saveStatusText.innerText = "All changes saved";
+                    showToast("Note saved successfully!");
+                    
+                    // Visual Success State for Button
+                    btnSave.style.backgroundColor = "var(--success-color)";
+                    btnSave.innerHTML = `✓ Saved`;
+                    setTimeout(() => {
+                        btnSave.style.backgroundColor = "";
+                        btnSave.innerHTML = originalText;
+                        btnSave.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error("Server rejected request");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Failed to save note.", "error");
+                saveStatusText.innerText = "Unsaved changes";
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
+            }
+        });
+
+        // --- RENDER HELPERS ---
+        function renderProblemData(problem) {
+            problemInfo.classList.add('active');
+            dispName.innerText = problem.name;
+            dispRating.innerText = problem.rating || "Unrated";
+            
+            const r = problem.rating;
+            if (!r) dispRating.style.color = 'var(--text-muted)';
+            else if (r >= 2000) dispRating.style.color = '#eab308';
+            else if (r >= 1600) dispRating.style.color = '#818cf8';
+            else dispRating.style.color = '#10b981';
+
+            dispTags.innerHTML = problem.tags.map(t => `<span class="tag">${t}</span>`).join('');
+            dispLink.href = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
+        }
+
+        // --- 3. AUTO FILL ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cId = urlParams.get('contestId');
+            const idx = urlParams.get('index');
+
+            if (cId && idx) {
+                inpContestId.value = cId;
+                inpIndex.value = idx;
+                btnFetch.click();
+            }
+        });
+
+        // Shortcut: Ctrl+S to save
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (!btnSave.disabled) btnSave.click();
+            }
+        });
+    </script>
+</body>
+</html>
