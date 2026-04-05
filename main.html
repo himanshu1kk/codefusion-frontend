@@ -8,19 +8,20 @@
     
     <style>
         :root {
-            /* Palette - Deep Space Theme */
             --bg-dark: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.7); /* Translucent */
+            --bg-card: rgba(30, 41, 59, 0.7);
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             
-            /* Accents */
-            --accent-primary: #38bdf8; /* Sky Blue */
+            --accent-primary: #38bdf8;
             --accent-glow: rgba(56, 189, 248, 0.3);
-            --accent-secondary: #f472b6; /* Pink */
+            --accent-secondary: #f472b6;
             --accent-secondary-glow: rgba(244, 114, 182, 0.3);
+
+            /* Link Handle accent — teal/emerald to stand out */
+            --accent-link: #34d399;
+            --accent-link-glow: rgba(52, 211, 153, 0.3);
             
-            /* Rank Colors */
             --rank-newbie: #9ca3af;
             --rank-pupil: #4ade80;
             --rank-specialist: #2dd4bf;
@@ -34,11 +35,7 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Outfit', sans-serif;
@@ -79,7 +76,6 @@
             white-space: nowrap;
         }
 
-        /* --- MODERN SEARCH BAR --- */
         .search-container {
             display: flex;
             align-items: center;
@@ -124,10 +120,7 @@
             flex-shrink: 0;
         }
 
-        #searchButton:hover {
-            transform: rotate(15deg) scale(1.1);
-            background: #fff;
-        }
+        #searchButton:hover { transform: rotate(15deg) scale(1.1); background: #fff; }
 
         /* --- NAV ACTIONS --- */
         .nav-actions {
@@ -149,37 +142,70 @@
             gap: 6px;
             font-size: 0.9rem;
             white-space: nowrap;
+            cursor: pointer;
         }
 
-        /* General Hover */
         .nav-link-btn:hover {
             color: var(--text-main);
             background: rgba(255, 255, 255, 0.05);
             transform: translateY(-1px);
         }
 
-        /* Practice Button Specifics */
         .nav-link-btn.practice-btn {
             background: rgba(56, 189, 248, 0.05);
             border-color: rgba(56, 189, 248, 0.2);
             color: var(--accent-primary);
         }
-
         .nav-link-btn.practice-btn:hover {
             background: rgba(56, 189, 248, 0.15);
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        /* Analytics Button Specifics */
         .nav-link-btn.analytics-btn {
             background: rgba(244, 114, 182, 0.05);
             border-color: rgba(244, 114, 182, 0.2);
             color: var(--accent-secondary);
         }
-
         .nav-link-btn.analytics-btn:hover {
             background: rgba(244, 114, 182, 0.15);
             box-shadow: 0 0 15px var(--accent-secondary-glow);
+        }
+
+        /* ─── Link Handle Button (NEW) ─── */
+        .nav-link-btn.link-handle-btn {
+            background: rgba(52, 211, 153, 0.08);
+            border-color: rgba(52, 211, 153, 0.25);
+            color: var(--accent-link);
+            position: relative;
+        }
+        .nav-link-btn.link-handle-btn:hover {
+            background: rgba(52, 211, 153, 0.18);
+            box-shadow: 0 0 15px var(--accent-link-glow);
+            transform: translateY(-1px);
+        }
+        /* Subtle pulse dot to draw attention */
+        .nav-link-btn.link-handle-btn .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-link);
+            animation: pulse-dot 2s ease infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.5); }
+        }
+        /* Once handle is linked, swap styling to 'verified' */
+        .nav-link-btn.link-handle-btn.is-linked {
+            background: rgba(52, 211, 153, 0.06);
+            border-color: rgba(52, 211, 153, 0.15);
+            color: rgba(52, 211, 153, 0.7);
+            pointer-events: none;
+            cursor: default;
+        }
+        .nav-link-btn.link-handle-btn.is-linked .pulse-dot {
+            display: none;
         }
 
         /* --- MAIN LAYOUT --- */
@@ -192,7 +218,6 @@
             flex: 1;
         }
 
-        /* Card Base Style */
         .glass-card {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
@@ -218,7 +243,6 @@
             padding-bottom: 10px;
         }
 
-        /* --- SUMMARY SECTION --- */
         .summary-content {
             display: flex;
             flex-wrap: wrap;
@@ -226,29 +250,25 @@
             align-items: center;
         }
 
-        .avatar-container {
-            position: relative;
-        }
+        .avatar-container { position: relative; }
 
         .avatar {
             width: 120px;
             height: 120px;
-            border-radius: 24px; /* Squircle */
+            border-radius: 24px;
             object-fit: cover;
             border: 2px solid rgba(255,255,255,0.1);
             box-shadow: 0 0 30px rgba(0,0,0,0.3);
         }
 
-        .user-meta {
-            flex: 1;
-        }
+        .user-meta { flex: 1; }
 
         .handle-title {
             font-size: 2.5rem;
             font-weight: 700;
             line-height: 1;
             margin-bottom: 10px;
-            word-break: break-all; /* Prevents overflow for long names */
+            word-break: break-all;
         }
 
         .rank-badge {
@@ -262,7 +282,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -278,59 +297,33 @@
             border: 1px solid rgba(255, 255, 255, 0.03);
             transition: var(--transition);
         }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.05);
-        }
+        .stat-box:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
 
         .stat-label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
         .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
         .stat-value.rating-max { color: var(--rank-master); }
 
-        /* --- DETAILS GRID --- */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
         }
-
         .info-item strong { color: var(--accent-primary); display: block; font-size: 0.85rem; margin-bottom: 4px; }
         .info-item span { color: var(--text-main); font-size: 1rem; }
 
-        /* --- SUBMISSIONS TABLE --- */
         .table-container {
-            overflow-x: auto; /* Enables horizontal scroll */
+            overflow-x: auto;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            white-space: nowrap; /* Keeps rows from wrapping weirdly */
-        }
-
-        th {
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--text-muted);
-            font-weight: 600;
-            text-align: left;
-            padding: 16px;
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-        }
-
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; white-space: nowrap; }
+        th { background: rgba(0, 0, 0, 0.3); color: var(--text-muted); font-weight: 600; text-align: left; padding: 16px; }
+        td { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-main); }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: rgba(255, 255, 255, 0.02); }
 
-        /* Problem name handling */
         .problem-link {
             color: var(--text-main);
             text-decoration: none;
@@ -341,14 +334,12 @@
             text-overflow: ellipsis;
         }
 
-        /* Verdict Colors */
         .verdict-OK { color: var(--rank-pupil); font-weight: 600; }
         .verdict-WRONG_ANSWER { color: var(--rank-lgm); }
         .verdict-TIME_LIMIT_EXCEEDED { color: var(--rank-master); }
         .verdict-COMPILATION_ERROR { color: var(--rank-cm); }
         .verdict-RUNTIME_ERROR { color: var(--rank-gm); }
 
-        /* --- BUTTONS --- */
         .actions-row {
             display: flex;
             gap: 15px;
@@ -367,20 +358,14 @@
             color: var(--text-main);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .btn-action:hover:not(:disabled) {
             background: var(--text-main);
             color: var(--bg-dark);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255,255,255,0.1);
         }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-action:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* --- ERROR STATE --- */
         #error-container {
             grid-column: 1 / -1;
             display: flex;
@@ -394,61 +379,41 @@
             border-radius: var(--border-radius);
             animation: fadeIn 0.5s ease;
         }
-
-        .error-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-            animation: bounce 2s infinite;
-        }
-
-        .error-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #f87171;
-            margin-bottom: 8px;
-        }
-
-        .error-desc {
-            color: var(--text-muted);
-            max-width: 400px;
-        }
-
+        .error-icon { font-size: 4rem; margin-bottom: 15px; animation: bounce 2s infinite; }
+        .error-title { font-size: 1.5rem; font-weight: 700; color: #f87171; margin-bottom: 8px; }
+        .error-desc { color: var(--text-muted); max-width: 400px; }
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-10px);}
-            60% {transform: translateY(-5px);}
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
 
-        /* --- LOADING --- */
         .loading-container {
             text-align: center;
             padding: 50px;
             grid-column: 1 / -1;
             color: var(--accent-primary);
         }
-        
         .spinner {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             border: 4px solid rgba(56, 189, 248, 0.1);
             border-top-color: var(--accent-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
         }
-
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .hidden { display: none !important; }
 
-        /* Rank Color Classes */
         .rank-color-newbie { color: var(--rank-newbie); }
         .rank-color-pupil { color: var(--rank-pupil); }
         .rank-color-specialist { color: var(--rank-specialist); }
         .rank-color-expert { color: var(--rank-expert); }
         .rank-color-candidatemaster { color: var(--rank-cm); }
         .rank-color-master { color: var(--rank-master); }
-        .rank-color-internationalmaster { color: var(--rank-master); } 
+        .rank-color-internationalmaster { color: var(--rank-master); }
         .rank-color-grandmaster { color: var(--rank-gm); }
         .rank-color-internationalgrandmaster { color: var(--rank-gm); }
         .rank-color-legendarygrandmaster { color: var(--rank-lgm); }
@@ -460,101 +425,26 @@
             font-size: 0.85rem;
         }
 
-        /* --- MOBILE RESPONSIVENESS FIXES --- */
+        /* --- MOBILE --- */
         @media (max-width: 768px) {
-            /* Header Stack */
-            header {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px 20px;
-            }
-
-            .search-container {
-                margin: 0;
-                width: 100%;
-                max-width: none;
-            }
-
-            .nav-actions {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .nav-link-btn {
-                flex: 1; /* Buttons share width */
-                justify-content: center;
-                min-width: 100px;
-            }
-
-            /* Main Layout */
-            main {
-                width: 95%;
-                margin: 20px auto;
-                gap: 20px;
-            }
-
-            .glass-card {
-                padding: 20px;
-            }
-
-            /* Summary Section Stack */
-            .summary-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-
-            .user-meta {
-                width: 100%;
-            }
-
-            .handle-title {
-                font-size: 2rem;
-            }
-
-            /* Stats Grid - Force 2 Columns on mobile */
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .stat-value {
-                font-size: 1.2rem;
-            }
-
-            /* Info Grid - Single column often better on very small screens */
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            /* Table Adjustments */
-            th, td {
-                padding: 12px 10px;
-                font-size: 0.85rem;
-            }
-
-            /* Hide less important columns to save space, 
-               but rely on scroll for the rest */
-            th:nth-child(4), td:nth-child(4), /* Lang */
-            th:nth-child(5), td:nth-child(5)  /* Time */
-            {
-                display: none; 
-            }
-            
-            /* Allow problem name to shrink on mobile */
-            .problem-link {
-                max-width: 140px; 
-            }
-
-            .actions-row {
-                flex-direction: column;
-            }
-
-            .btn-action {
-                width: 100%;
-            }
+            header { flex-direction: column; gap: 20px; padding: 20px; }
+            .search-container { margin: 0; width: 100%; max-width: none; }
+            .nav-actions { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
+            .nav-link-btn { flex: 1; justify-content: center; min-width: 90px; font-size: 0.82rem; padding: 8px 10px; }
+            main { width: 95%; margin: 20px auto; gap: 20px; }
+            .glass-card { padding: 20px; }
+            .summary-content { flex-direction: column; text-align: center; gap: 15px; }
+            .user-meta { width: 100%; }
+            .handle-title { font-size: 2rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-value { font-size: 1.2rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            th, td { padding: 12px 10px; font-size: 0.85rem; }
+            th:nth-child(4), td:nth-child(4),
+            th:nth-child(5), td:nth-child(5) { display: none; }
+            .problem-link { max-width: 140px; }
+            .actions-row { flex-direction: column; }
+            .btn-action { width: 100%; }
         }
     </style>
 </head>
@@ -574,6 +464,18 @@
             <a href="analytics.html" class="nav-link-btn analytics-btn">Analytics 📊</a>
             <a href="practice.html" class="nav-link-btn practice-btn">Practice 🎯</a>
             <a href="contest.html" class="nav-link-btn">Contests</a>
+            <!--
+                Link Handle Button
+                - Shows a pulsing dot when handle is NOT linked yet
+                - Navigates to verification.html
+                - JS below checks localStorage for a linked handle and
+                  switches it to a greyed-out "Verified ✓" state if already done
+            -->
+            <a href="verification.html" class="nav-link-btn link-handle-btn" id="linkHandleBtn">
+                <span class="pulse-dot"></span>
+                <span id="linkHandleLabel">Link Handle</span>
+                <span>🔗</span>
+            </a>
         </nav>
     </header>
 
@@ -662,20 +564,39 @@
             const handleInput = document.getElementById('handleInput');
             const searchButton = document.getElementById('searchButton');
             const loading = document.getElementById('loading');
-            
             const errorDiv = document.getElementById('error-container'); 
-
             const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
             const trackRatingBtn = document.getElementById('trackRatingBtn');
-           // https://codefusion-backend-tzj4.onrender.com/
 
             const API_BASE_URL = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf/user/';
 
             let currentHandle = '';
 
+            /* ─── Link Handle Button State ───────────────────────
+             * If the user already has a linked CF handle stored
+             * (e.g. set after successful verification), show a
+             * "Verified ✓" label and disable the button so they
+             * don't accidentally re-trigger the flow.
+             *
+             * The verification page sets 'linkedCfHandle' in
+             * localStorage on success — or you can drive this
+             * from a /me API call on page load.
+             * ──────────────────────────────────────────────────── */
+            (function initLinkHandleBtn() {
+                const linked = localStorage.getItem('linkedCfHandle');
+                const btn = document.getElementById('linkHandleBtn');
+                const label = document.getElementById('linkHandleLabel');
+                if (linked) {
+                    btn.classList.add('is-linked');
+                    btn.removeAttribute('href'); // disable navigation
+                    label.textContent = `${linked} ✓`;
+                    btn.title = `Codeforces handle "${linked}" is already linked`;
+                }
+            })();
+
             const setVisibility = (id, visible) => {
                 const el = document.getElementById(id);
-                if(el) el.classList.toggle('hidden', !visible);
+                if (el) el.classList.toggle('hidden', !visible);
             };
             
             const timeConverter = (unix, dateOnly = false) => {
@@ -687,10 +608,49 @@
                 );
             };
 
-            const saveHandle = (handle) => localStorage.setItem('lastCodeforcesHandle', handle);
             const getHandleFromUrl = () => new URLSearchParams(window.location.search).get('handle');
 
-     
+            /* ─── Cache Helpers ──────────────────────────────────
+             * Profile data is stored under the key:
+             *   `profileCache:<handle>`
+             * as a JSON object: { ts: <unix ms>, summary, details, subs }
+             *
+             * A separate key `lastCodeforcesHandle` still tracks
+             * which handle to restore on page load.
+             * ──────────────────────────────────────────────────── */
+            const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+            function readCache(handle) {
+                try {
+                    const raw = localStorage.getItem(`profileCache:${handle}`);
+                    if (!raw) return null;
+                    const cached = JSON.parse(raw);
+                    // Invalidate if older than TTL
+                    if (Date.now() - cached.ts > CACHE_TTL_MS) {
+                        localStorage.removeItem(`profileCache:${handle}`);
+                        return null;
+                    }
+                    return cached;
+                } catch {
+                    return null;
+                }
+            }
+
+            function writeCache(handle, summary, details, subs) {
+                try {
+                    localStorage.setItem(`profileCache:${handle}`, JSON.stringify({
+                        ts: Date.now(),
+                        summary,
+                        details,
+                        subs,
+                    }));
+                    localStorage.setItem('lastCodeforcesHandle', handle);
+                } catch {
+                    // Quota exceeded — fail silently, app still works
+                }
+            }
+
+            /* ─── API Helper ─────────────────────────────────── */
             const fetchWithCffError = async (url) => {
                 try {
                     const res = await fetch(url);
@@ -705,24 +665,48 @@
                     
                     throw new Error(msg);
                 } catch (e) {
-                    throw e; 
+                    throw e;
                 }
             };
 
+            /* ─── Render from data (no fetch) ────────────────── */
+            function renderFromData(handle, { summary, details, subs }) {
+                currentHandle = handle;
+                handleInput.value = handle;
 
+                renderSummary(summary);
+                renderDetails(details);
+                renderSubmissions(subs);
+
+                setVisibility('summarySection', true);
+                setVisibility('detailsSection', true);
+                setVisibility('submissionsSection', true);
+                detailedSubmissionsBtn.disabled = false;
+                trackRatingBtn.disabled = false;
+            }
+
+            /* ─── Page load: restore without API call if cached ─ */
             const loadInitialProfile = () => {
                 const urlHandle = getHandleFromUrl();
                 const savedHandle = localStorage.getItem('lastCodeforcesHandle');
-                
-                if (urlHandle) {
-                    handleInput.value = urlHandle;
-                    searchProfile(urlHandle);
-                } else if (savedHandle) {
-                    handleInput.value = savedHandle;
-                    searchProfile(savedHandle);
+                const handle = urlHandle || savedHandle;
+
+                if (!handle) return;
+
+                handleInput.value = handle;
+
+                // Hit cache first — no API call on revisit
+                const cached = readCache(handle);
+                if (cached) {
+                    renderFromData(handle, cached);
+                    return;
                 }
+
+                // No cache (first visit or expired) — fetch fresh
+                searchProfile(handle);
             };
 
+            /* ─── Search: always fetches fresh, then caches ───── */
             const searchProfile = async (initialHandle = null) => {
                 const handle = initialHandle || handleInput.value.trim();
                 if (!handle) return;
@@ -739,21 +723,15 @@
                 trackRatingBtn.disabled = true;
 
                 try {
-                    const summary = await fetchWithCffError(`${API_BASE_URL}${handle}/summary`);
-                    const details = await fetchWithCffError(`${API_BASE_URL}${handle}`);
-                    const subs = await fetchWithCffError(`${API_BASE_URL}${handle}/submissions?count=10`);
+                    const [summary, details, subs] = await Promise.all([
+                        fetchWithCffError(`${API_BASE_URL}${handle}/summary`),
+                        fetchWithCffError(`${API_BASE_URL}${handle}`),
+                        fetchWithCffError(`${API_BASE_URL}${handle}/submissions?count=10`),
+                    ]);
 
-                    renderSummary(summary);
-                    renderDetails(details);
-                    renderSubmissions(subs);
-
-                    saveHandle(handle);
-
-                    setVisibility('summarySection', true);
-                    setVisibility('detailsSection', true);
-                    setVisibility('submissionsSection', true);
-                    detailedSubmissionsBtn.disabled = false;
-                    trackRatingBtn.disabled = false;
+                    // Persist to cache before rendering
+                    writeCache(handle, summary, details, subs);
+                    renderFromData(handle, { summary, details, subs });
 
                 } catch (err) {
                     showFancyError(err.message, handle);
@@ -761,7 +739,6 @@
                     setVisibility('loading', false);
                 }
             };
-
 
             const showFancyError = (msg, handle) => {
                 let icon = '⚠️';
@@ -790,13 +767,8 @@
                 document.getElementById('userAvatar').src = data.avatar || 'https://userpic.codeforces.org/no-avatar.jpg';
                 const handleEl = document.getElementById('summaryHandle');
                 handleEl.textContent = data.handle;
-                
-      
                 handleEl.className = `handle-title rank-color-${(data.rank || 'newbie').replace(/\s/g, '')}`;
-
-                const rankTag = document.getElementById('summaryRank');
-                rankTag.textContent = data.rank || 'Unrated';
-                
+                document.getElementById('summaryRank').textContent = data.rank || 'Unrated';
                 document.getElementById('summaryCountry').textContent = data.country || 'Location Unknown';
                 document.getElementById('currentRating').textContent = data.currentRating ?? 'N/A';
                 document.getElementById('maxRating').textContent = data.maxRating ?? 'N/A';
@@ -822,36 +794,32 @@
                 }
 
                 subs.forEach(s => {
-                    const row = tbody.insertRow();
-                    const probName = `${s.problem.index} - ${s.problem.name}`;
-                    const shortLang = s.programmingLanguage.split(' ')[0]; 
+    const row = tbody.insertRow();
 
-                    row.innerHTML = `
-                        <td>
-                            <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}" 
-                               target="_blank" 
-                               class="problem-link">
-                               ${probName}
-                            </a>
-                        </td>
-                        <td>${s.problem.rating || '<span style="opacity:0.5">-</span>'}</td>
-                        <td class="verdict-${s.verdict}">${s.verdict.replace(/_/g, ' ')}</td>
-                        <td style="font-size: 0.85em; opacity: 0.8;">${shortLang}</td>
-                        <td style="font-size: 0.85em; opacity: 0.8;">${timeConverter(s.creationTimeSeconds)}</td>
-                    `;
-                });
+    const probName = `${s.problem.index} - ${s.problem.name}`;
+    const shortLang = s.programmingLanguage?.split(' ')[0] || 'N/A';
+
+    const verdict = s.verdict || "PENDING";
+    const verdictText = verdict.replace(/_/g, ' ');
+
+    row.innerHTML = `
+        <td>
+            <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}" 
+               target="_blank" class="problem-link">${probName}</a>
+        </td>
+        <td>${s.problem.rating || '<span style="opacity:0.5">-</span>'}</td>
+        <td class="verdict-${verdict}">${verdictText}</td>
+        <td style="font-size:0.85em;opacity:0.8">${shortLang}</td>
+        <td style="font-size:0.85em;opacity:0.8">${timeConverter(s.creationTimeSeconds)}</td>
+    `;
+});
             };
 
-           
             searchButton.addEventListener('click', () => searchProfile());
-            handleInput.addEventListener('keypress', e => {
-                if (e.key === 'Enter') searchProfile();
-            });
-
+            handleInput.addEventListener('keypress', e => { if (e.key === 'Enter') searchProfile(); });
             detailedSubmissionsBtn.addEventListener('click', () => {
                 window.location.href = `detailed-submissions.html?handle=${currentHandle}`;
             });
-
             trackRatingBtn.addEventListener('click', () => {
                 window.location.href = `rating-history.html?handle=${currentHandle}`;
             });

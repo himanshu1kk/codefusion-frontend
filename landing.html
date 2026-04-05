@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFF Explorer — Codeforces Analytics Platform</title>
+    <meta name="description" content="Track your Codeforces rating, analyze submission patterns, and identify weaknesses. Built for competitive programmers who practice with purpose.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* =============================================
+           TOKENS
+        ============================================= */
+        :root {
+            --void:    #020811;
+            --deep:    #060d1a;
+            --surface: #0a1628;
+            --raised:  #0f1f35;
+            --edge:    #172540;
+            --rim:     rgba(255,255,255,0.055);
+            --rim-2:   rgba(255,255,255,0.1);
+
+            --ink:   #eef2ff;
+            --ink-2: #8baad4;
+            --ink-3: #4a6080;
+
+            --blue:      #3b82f6;
+            --blue-mid:  #60a5fa;
+            --blue-dim:  rgba(59,130,246,0.15);
+            --blue-glow: rgba(59,130,246,0.3);
+
+            --cyan:      #22d3ee;
+            --cyan-dim:  rgba(34,211,238,0.12);
+
+            --green:     #34d399;
+            --green-dim: rgba(52,211,153,0.12);
+
+            --amber:     #fbbf24;
+            --amber-dim: rgba(251,191,36,0.12);
+
+            --violet:    #a78bfa;
+            --violet-dim:rgba(167,139,250,0.12);
+
+            --r-sm:  8px;
+            --r-md:  12px;
+            --r-lg:  18px;
+            --r-xl:  24px;
+            --r-2xl: 32px;
+
+            --font-d: 'Syne', sans-serif;
+            --font-b: 'DM Sans', sans-serif;
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* =============================================
+           BASE
+        ============================================= */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-b);
+            background: var(--void);
+            color: var(--ink);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        img { max-width: 100%; display: block; }
+        a { color: inherit; text-decoration: none; }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* =============================================
+           NAV — public-only links
+        ============================================= */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .nav.scrolled {
+            background: rgba(2, 8, 17, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--rim);
+        }
+
+        .nav-inner {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-mark {
+            width: 32px;
+            height: 32px;
+            background: var(--blue-dim);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-logo-mark svg { width: 16px; height: 16px; fill: var(--blue); }
+
+        .nav-logo-text {
+            font-family: var(--font-d);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+        .nav-logo-text span { color: var(--blue); }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--ink-2);
+            padding: 6px 14px;
+            border-radius: var(--r-sm);
+            transition: color 0.2s, background 0.2s;
+        }
+        .nav-link:hover { color: var(--ink); background: var(--rim); }
+
+        /* Ghost/secondary CTA — Login */
+        .nav-login {
+            background: transparent;
+            border: 1px solid var(--rim-2);
+            color: var(--ink-2);
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: var(--r-md);
+            transition: all 0.2s;
+            margin-left: 4px;
+        }
+        .nav-login:hover { background: var(--rim); color: var(--ink); }
+
+        /* Primary CTA — Register */
+        .nav-cta {
+            background: var(--blue);
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: var(--r-md);
+            transition: background 0.2s, transform 0.2s;
+            margin-left: 6px;
+        }
+        .nav-cta:hover { background: var(--blue-mid); transform: translateY(-1px); }
+
+        /* =============================================
+           HERO
+        ============================================= */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .hero-bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        .orb-1 {
+            width: 600px; height: 500px;
+            top: -100px; left: -150px;
+            background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+        }
+
+        .orb-2 {
+            width: 500px; height: 400px;
+            bottom: -50px; right: -100px;
+            background: radial-gradient(circle, rgba(34,211,153,0.08) 0%, transparent 70%);
+        }
+
+        .orb-3 {
+            width: 300px; height: 300px;
+            top: 40%; left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue-dim);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 100px;
+            padding: 6px 14px 6px 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--blue-mid);
+            margin-bottom: 28px;
+            animation: fadeUp 0.6s var(--ease-out) both;
+        }
+
+        .hero-badge-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--blue);
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 0 0 var(--blue-glow); }
+            50%      { opacity: 0.7; box-shadow: 0 0 0 5px transparent; }
+        }
+
+        .hero-title {
+            font-family: var(--font-d);
+            font-size: clamp(2.4rem, 6vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.6s var(--ease-out) 0.1s both;
+        }
+
+        .hero-title .line-muted  { color: var(--ink-2); }
+        .hero-title .line-accent { color: var(--blue-mid); }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--ink-2);
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 40px;
+            animation: fadeUp 0.6s var(--ease-out) 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            animation: fadeUp 0.6s var(--ease-out) 0.3s both;
+        }
+
+        .btn-hero-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue);
+            color: #fff;
+            font-family: var(--font-b);
+            font-weight: 600;
+            font-size: 0.975rem;
+            padding: 14px 28px;
+            border-radius: var(--r-lg);
+            transition: all 0.2s;
+            box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+        }
+        .btn-hero-primary:hover {
+            background: var(--blue-mid);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(59,130,246,0.4);
+        }
+
+        .btn-hero-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--rim);
+            border: 1px solid var(--rim-2);
+            color: var(--ink-2);
+            font-family: var(--font-b);
+            font-weight: 600;
+            font-size: 0.975rem;
+            padding: 14px 28px;
+            border-radius: var(--r-lg);
+            transition: all 0.2s;
+        }
+        .btn-hero-ghost:hover {
+            background: var(--raised);
+            color: var(--ink);
+            border-color: var(--rim-2);
+            transform: translateY(-1px);
+        }
+
+        /* ── Journey hint below CTAs ── */
+        .hero-journey {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 28px;
+            font-size: 0.8rem;
+            color: var(--ink-3);
+            animation: fadeUp 0.6s var(--ease-out) 0.35s both;
+        }
+
+        .hero-journey-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-journey-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--blue);
+            flex-shrink: 0;
+        }
+
+        .hero-journey-arrow {
+            color: var(--ink-3);
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        /* Hero visual mockup */
+        .hero-visual {
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 480px;
+            animation: fadeUp 0.8s var(--ease-out) 0.35s both;
+            pointer-events: none;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =============================================
+           SECTION SHARED
+        ============================================= */
+        .section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue);
+            background: var(--blue-dim);
+            border: 1px solid rgba(59,130,246,0.2);
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: var(--font-d);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .section-sub {
+            font-size: 1rem;
+            color: var(--ink-2);
+            max-width: 520px;
+            line-height: 1.65;
+        }
+
+        /* =============================================
+           FEATURES
+        ============================================= */
+        .features-section { background: var(--deep); }
+        .features-header { margin-bottom: 56px; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feat-card {
+            background: var(--surface);
+            border: 1px solid var(--rim);
+            border-radius: var(--r-xl);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s var(--ease-out), border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .feat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--feat-accent, var(--blue)), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--rim-2);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
+
+        .feat-card:hover::before { opacity: 1; }
+
+        .feat-icon {
+            width: 44px; height: 44px;
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            background: var(--feat-bg, var(--blue-dim));
+            border: 1px solid var(--feat-border, rgba(59,130,246,0.2));
+        }
+
+        .feat-title {
+            font-family: var(--font-d);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--ink);
+        }
+
+        .feat-desc {
+            font-size: 0.875rem;
+            color: var(--ink-2);
+            line-height: 1.65;
+        }
+
+        .feat-tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 100px;
+            margin-top: 16px;
+            background: var(--feat-bg, var(--blue-dim));
+            color: var(--feat-color, var(--blue-mid));
+            border: 1px solid var(--feat-border, rgba(59,130,246,0.2));
+        }
+
+        .how-section { background: var(--void); overflow: hidden; }
+
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            position: relative;
+            margin-top: 56px;
+        }
+
+        .how-grid::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: calc(12.5% + 22px);
+            right: calc(12.5% + 22px);
+            height: 1px;
+            background: linear-gradient(90deg, var(--blue-dim), rgba(59,130,246,0.4), var(--blue-dim));
+            z-index: 0;
+        }
+
+        .how-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .how-num {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1.5px solid var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-d);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--blue-mid);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px var(--blue-glow);
+            transition: all 0.3s;
+        }
+
+        .how-step:hover .how-num {
+            background: var(--blue-dim);
+            box-shadow: 0 0 30px rgba(59,130,246,0.5);
+        }
+
+        .how-title {
+            font-family: var(--font-d);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .how-desc {
+            font-size: 0.82rem;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+
+        /* Step gate badge — marks auth boundary */
+        .how-gate {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 100px;
+            margin-top: 10px;
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(52,211,153,0.25);
+        }
+
+
+        .preview-section { background: var(--deep); }
+
+        .mock-browser {
+            background: var(--surface);
+            border: 1px solid var(--rim);
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+            margin-top: 48px;
+        }
+
+        .mock-bar {
+            background: var(--raised);
+            border-bottom: 1px solid var(--rim);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mock-dots { display: flex; gap: 6px; }
+        .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .mock-dot-r { background: #ff5f57; }
+        .mock-dot-y { background: #ffbd2e; }
+        .mock-dot-g { background: #28ca41; }
+
+        .mock-url {
+            flex: 1;
+            background: var(--edge);
+            border-radius: var(--r-sm);
+            padding: 5px 12px;
+            font-size: 0.72rem;
+            color: var(--ink-3);
+            font-family: 'SF Mono', monospace;
+        }
+
+     
+        .mock-lock {
+            font-size: 0.68rem;
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid rgba(52,211,153,0.2);
+            padding: 3px 9px;
+            border-radius: 100px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .mock-content {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .mock-stat {
+            background: var(--raised);
+            border: 1px solid var(--rim);
+            border-radius: var(--r-lg);
+            padding: 18px;
+        }
+
+        .mock-stat-label {
+            font-size: 0.7rem;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+
+        .mock-stat-value {
+            font-family: var(--font-d);
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .mock-stat-sub { font-size: 0.72rem; margin-top: 4px; }
+
+        .mock-chart-row {
+            grid-column: 1 / -1;
+            background: var(--raised);
+            border: 1px solid var(--rim);
+            border-radius: var(--r-lg);
+            padding: 20px;
+        }
+
+        .mock-chart-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--ink-2);
+            margin-bottom: 16px;
+        }
+
+        .mock-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 80px;
+        }
+
+        .mock-bar-item {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .mock-bar-item:hover { opacity: 1; }
+
+        .mock-prob-row {
+            grid-column: 1 / -1;
+            background: var(--raised);
+            border: 1px solid var(--rim);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+        }
+
+        .mock-prob-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--rim);
+            font-size: 0.8rem;
+        }
+        .mock-prob-item:last-child { border-bottom: none; }
+
+        .mock-prob-name { color: var(--ink); font-weight: 500; }
+        .mock-prob-rating {
+            font-family: var(--font-d);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+        }
+        .mock-verdict-ok  { color: var(--green); font-weight: 600; font-size: 0.72rem; }
+        .mock-verdict-wa  { color: #f87171; font-weight: 600; font-size: 0.72rem; }
+
+        .mock-gate-overlay {
+            grid-column: 1 / -1;
+            background: linear-gradient(to bottom, transparent, rgba(6,13,26,0.92));
+            border-radius: var(--r-lg);
+            padding: 28px 24px 20px;
+            text-align: center;
+            margin-top: -8px;
+        }
+
+        .mock-gate-label {
+            font-size: 0.8rem;
+            color: var(--ink-3);
+            margin-bottom: 14px;
+        }
+
+        .mock-gate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 10px 20px;
+            border-radius: var(--r-md);
+            transition: all 0.2s;
+            box-shadow: 0 6px 18px rgba(59,130,246,0.3);
+        }
+        .mock-gate-btn:hover {
+            background: var(--blue-mid);
+            transform: translateY(-1px);
+        }
+
+       
+        .social-section { background: var(--void); padding: 80px 0; }
+
+        .rank-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 48px;
+        }
+
+        .rank-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--rim);
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .rank-pill:hover { transform: translateY(-2px); border-color: var(--rim-2); }
+
+        .rank-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+       
+        .cta-section {
+            padding: 120px 0;
+            background: var(--deep);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-orb {
+            position: absolute;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 65%);
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        .cta-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: var(--font-d);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .cta-sub {
+            font-size: 1rem;
+            color: var(--ink-2);
+            max-width: 460px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+        }
+
+        .cta-btns {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Small "no credit card" note */
+        .cta-note {
+            margin-top: 18px;
+            font-size: 0.78rem;
+            color: var(--ink-3);
+        }
+
+        .footer {
+            background: var(--void);
+            border-top: 1px solid var(--rim);
+            padding: 48px 0;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .footer-brand-desc {
+            font-size: 0.85rem;
+            color: var(--ink-3);
+            margin-top: 12px;
+            max-width: 260px;
+            line-height: 1.6;
+        }
+
+        .footer-col-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-3);
+            margin-bottom: 14px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            font-size: 0.875rem;
+            color: var(--ink-2);
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--ink); }
+
+        .footer-bottom {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--rim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--ink-3);
+        }
+
+  
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .reveal-stagger > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+        }
+        .reveal-stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:0s; }
+        .reveal-stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.08s; }
+        .reveal-stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.16s; }
+        .reveal-stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.24s; }
+        .reveal-stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay:0.32s; }
+        .reveal-stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay:0.40s; }
+
+       
+        @media (max-width: 900px) {
+            .hero-visual { display: none; }
+            .hero-content { max-width: 100%; }
+
+            .how-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            .how-grid::before { display: none; }
+
+            .mock-content { grid-template-columns: 1fr 1fr; }
+            .mock-chart-row, .mock-prob-row, .mock-gate-overlay { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 640px) {
+            .section { padding: 72px 0; }
+            .hero { padding: 90px 0 60px; min-height: auto; }
+            .how-grid { grid-template-columns: 1fr; }
+            .mock-content { grid-template-columns: 1fr; }
+            .nav-links .nav-link { display: none; }
+            .footer-inner { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══ NAV — public only: Features, How it Works, Login, Register ══ -->
+    <nav class="nav" id="mainNav">
+        <div class="nav-inner">
+            <a href="landing.html" class="nav-logo">
+                <div class="nav-logo-mark">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/></svg>
+                </div>
+                <span class="nav-logo-text">CFF <span>Explorer</span></span>
+            </a>
+
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how"      class="nav-link">How it works</a>
+                <a href="#preview"  class="nav-link">Preview</a>
+                <!-- Only public auth actions -->
+                <a href="codeLogin.html"  class="nav-login">Log in</a>
+                <a href="index1.html"  class="nav-cta">Register →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="hero-bg-orb orb-1"></div>
+            <div class="hero-bg-orb orb-2"></div>
+            <div class="hero-bg-orb orb-3"></div>
+            <div class="hero-grid"></div>
+        </div>
+
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <div class="hero-badge-dot"></div>
+                    Early access — register to get started
+                </div>
+
+                <h1 class="hero-title">
+                    Know exactly where<br>
+                    your <span class="line-accent">Codeforces</span><br>
+                    <span class="line-muted">rating is going.</span>
+                </h1>
+
+                <p class="hero-sub">
+                    CFF Explorer connects to your Codeforces handle and turns raw submission data into structured insight — rating trends, weak tags, contest breakdowns, and a problem explorer tuned to your level.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="index1.html" class="btn-hero-primary">
+                        Create free account
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="codeLogin.html" class="btn-hero-ghost">
+                        Log in
+                    </a>
+                </div>
+
+          
+                <div class="hero-journey">
+                    <div class="hero-journey-step">
+                        <div class="hero-journey-dot"></div>
+                        Register
+                    </div>
+                    <div class="hero-journey-arrow">→</div>
+                    <div class="hero-journey-step">
+                        <div class="hero-journey-dot" style="background:var(--cyan)"></div>
+                        Verify email
+                    </div>
+                    <div class="hero-journey-arrow">→</div>
+                    <div class="hero-journey-step">
+                        <div class="hero-journey-dot" style="background:var(--green)"></div>
+                        Link CF handle
+                    </div>
+                    <div class="hero-journey-arrow">→</div>
+                    <div class="hero-journey-step">
+                        <div class="hero-journey-dot" style="background:var(--amber)"></div>
+                        See your analytics
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      
+        <div class="hero-visual">
+            <div class="mock-browser" style="transform: perspective(1000px) rotateY(-8deg) rotateX(4deg);">
+                <div class="mock-bar">
+                    <div class="mock-dots">
+                        <div class="mock-dot mock-dot-r"></div>
+                        <div class="mock-dot mock-dot-y"></div>
+                        <div class="mock-dot mock-dot-g"></div>
+                    </div>
+                    <div class="mock-url">cff-explorer.app/dashboard</div>
+                    <div class="mock-lock">🔒 Authenticated</div>
+                </div>
+                <div class="mock-content">
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Current Rating</div>
+                        <div class="mock-stat-value" style="color:#60a5fa">1847</div>
+                        <div class="mock-stat-sub" style="color:#34d399">↑ +120 this month</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Problems Solved</div>
+                        <div class="mock-stat-value" style="color:#f0f4ff">432</div>
+                        <div class="mock-stat-sub" style="color:#8baad4">87 this month</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Contests</div>
+                        <div class="mock-stat-value" style="color:#a78bfa">38</div>
+                        <div class="mock-stat-sub" style="color:#8baad4">Expert division</div>
+                    </div>
+                    <div class="mock-chart-row">
+                        <div class="mock-chart-title">Rating History — Last 12 contests</div>
+                        <div class="mock-bars">
+                            <div class="mock-bar-item" style="height:45%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:60%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:38%;background:#f87171"></div>
+                            <div class="mock-bar-item" style="height:70%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:55%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:80%;background:#34d399"></div>
+                            <div class="mock-bar-item" style="height:68%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:90%;background:#34d399"></div>
+                            <div class="mock-bar-item" style="height:75%;background:#3b82f6"></div>
+                            <div class="mock-bar-item" style="height:95%;background:#34d399"></div>
+                            <div class="mock-bar-item" style="height:88%;background:#34d399"></div>
+                            <div class="mock-bar-item" style="height:100%;background:#60a5fa"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section features-section" id="features">
+        <div class="container">
+            <div class="features-header reveal">
+                <span class="section-tag">Capabilities</span>
+                <h2 class="section-title">Built around how you<br>actually improve</h2>
+                <p class="section-sub">Every feature is tied to a real question competitive programmers ask about their own progress.</p>
+            </div>
+
+            <div class="features-grid reveal-stagger">
+
+                <!-- 1 -->
+                <div class="feat-card" style="--feat-accent:var(--blue);--feat-bg:var(--blue-dim);--feat-border:rgba(59,130,246,0.25);--feat-color:var(--blue-mid)">
+                    <div class="feat-icon">📈</div>
+                    <div class="feat-title">Rating History</div>
+                    <div class="feat-desc">See every contest that touched your rating — delta, rank, and a chronological chart that shows the full arc of your progress, not just the current number.</div>
+                    <span class="feat-tag">Analytics</span>
+                </div>
+
+                <!-- 2 -->
+                <div class="feat-card" style="--feat-accent:var(--amber);--feat-bg:var(--amber-dim);--feat-border:rgba(251,191,36,0.25);--feat-color:var(--amber)">
+                    <div class="feat-icon">🎯</div>
+                    <div class="feat-title">Weakness Identification</div>
+                    <div class="feat-desc">Aggregates your submission history by problem tag and difficulty. Shows exactly which topics — dp, graphs, math — have the lowest acceptance rate in your history.</div>
+                    <span class="feat-tag" style="--feat-bg:var(--amber-dim);--feat-color:var(--amber);--feat-border:rgba(251,191,36,0.25)">Insights</span>
+                </div>
+
+                <!-- 3 -->
+                <div class="feat-card" style="--feat-accent:var(--cyan);--feat-bg:var(--cyan-dim);--feat-border:rgba(34,211,238,0.25);--feat-color:var(--cyan)">
+                    <div class="feat-icon">📊</div>
+                    <div class="feat-title">Submission Analytics</div>
+                    <div class="feat-desc">Breaks down your submission log by verdict, language, and time — so you can see how often you get WA vs TLE, and how your solve speed trends across difficulty tiers.</div>
+                    <span class="feat-tag" style="--feat-bg:var(--cyan-dim);--feat-color:var(--cyan);--feat-border:rgba(34,211,238,0.25)">Submissions</span>
+                </div>
+
+                <!-- 4 -->
+                <div class="feat-card" style="--feat-accent:var(--violet);--feat-bg:var(--violet-dim);--feat-border:rgba(167,139,250,0.25);--feat-color:var(--violet)">
+                    <div class="feat-icon">🔍</div>
+                    <div class="feat-title">Problem Explorer</div>
+                    <div class="feat-desc">Filter the full Codeforces problem set by rating range and tag, and see at a glance which problems you've already solved — making targeted practice faster to set up.</div>
+                    <span class="feat-tag" style="--feat-bg:var(--violet-dim);--feat-color:var(--violet);--feat-border:rgba(167,139,250,0.25)">Practice</span>
+                </div>
+
+                <!-- 5 -->
+                <div class="feat-card" style="--feat-accent:var(--green);--feat-bg:var(--green-dim);--feat-border:rgba(52,211,153,0.25);--feat-color:var(--green)">
+                    <div class="feat-icon">📝</div>
+                    <div class="feat-title">Problem Notes</div>
+                    <div class="feat-desc">Attach private notes to any problem — approach ideas, what tripped you up, or a reference solution sketch. Stored per-user, accessible from any device after login.</div>
+                    <span class="feat-tag" style="--feat-bg:var(--green-dim);--feat-color:var(--green);--feat-border:rgba(52,211,153,0.25)">Notes</span>
+                </div>
+
+                <!-- 6 -->
+                <div class="feat-card" style="--feat-accent:var(--blue);--feat-bg:var(--blue-dim);--feat-border:rgba(59,130,246,0.25);--feat-color:var(--blue-mid)">
+                    <div class="feat-icon">🔗</div>
+                    <div class="feat-title">Secure Handle Verification</div>
+                    <div class="feat-desc">Links your Codeforces account via OTP — a temporary code you submit on the platform proves ownership. No password ever leaves your device. Your data is fetched via the public API under your identity.</div>
+                    <span class="feat-tag">Verification</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="section how-section" id="how">
+        <div class="container">
+            <div class="reveal" style="text-align:center; max-width:520px; margin:0 auto;">
+                <span class="section-tag">Getting started</span>
+                <h2 class="section-title">Four steps to full access</h2>
+                <p class="section-sub">Account creation, email verification, handle linking, then everything unlocks. Each step is guarded — you can't skip ahead.</p>
+            </div>
+
+            <div class="how-grid reveal-stagger">
+                <div class="how-step">
+                    <div class="how-num">01</div>
+                    <div class="how-title">Register</div>
+                    <div class="how-desc">Create an account with your email. A 6-digit OTP is sent immediately.</div>
+                    <span class="how-gate">Public</span>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">02</div>
+                    <div class="how-title">Verify Email</div>
+                    <div class="how-desc">Enter the OTP from your inbox to activate your account. Expires in 10 minutes.</div>
+                    <span class="how-gate">OTP required</span>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">03</div>
+                    <div class="how-title">Link CF Handle</div>
+                    <div class="how-desc">Enter your Codeforces username and prove ownership via a second OTP challenge on the platform.</div>
+                    <span class="how-gate">Auth required</span>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">04</div>
+                    <div class="how-title">Access Analytics</div>
+                    <div class="how-desc">Your full dashboard is now live — rating history, submission stats, weakness breakdown, and problem explorer.</div>
+                    <span class="how-gate">Fully unlocked</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section preview-section" id="preview">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag">Dashboard preview</span>
+                <h2 class="section-title">What you see after login</h2>
+                <p class="section-sub">The dashboard is only accessible after completing registration and handle verification. Here's what it looks like once you're in.</p>
+            </div>
+
+            <div class="mock-browser reveal" style="margin-top:48px;">
+                <div class="mock-bar">
+                    <div class="mock-dots">
+                        <div class="mock-dot mock-dot-r"></div>
+                        <div class="mock-dot mock-dot-y"></div>
+                        <div class="mock-dot mock-dot-g"></div>
+                    </div>
+                    <div class="mock-url">cff-explorer.app/profile/tourist</div>
+                    <div class="mock-lock">🔒 Authenticated</div>
+                </div>
+                <div class="mock-content">
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Current Rating</div>
+                        <div class="mock-stat-value" style="color:#f87171">3979</div>
+                        <div class="mock-stat-sub" style="color:#34d399">↑ +48 last contest</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Max Rating</div>
+                        <div class="mock-stat-value" style="color:#fbbf24">4009</div>
+                        <div class="mock-stat-sub" style="color:#8baad4">Legendary GM</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-label">Contribution</div>
+                        <div class="mock-stat-value" style="color:#a78bfa">+220</div>
+                        <div class="mock-stat-sub" style="color:#8baad4">Top contributor</div>
+                    </div>
+
+                    <div class="mock-chart-row">
+                        <div class="mock-chart-title">Problems solved by tag</div>
+                        <div class="mock-bars" style="height:60px; align-items:flex-end;">
+                            <div class="mock-bar-item" style="height:90%;background:rgba(59,130,246,0.7)"></div>
+                            <div class="mock-bar-item" style="height:75%;background:rgba(59,130,246,0.55)"></div>
+                            <div class="mock-bar-item" style="height:100%;background:rgba(59,130,246,0.9)"></div>
+                            <div class="mock-bar-item" style="height:60%;background:rgba(59,130,246,0.5)"></div>
+                            <div class="mock-bar-item" style="height:80%;background:rgba(59,130,246,0.7)"></div>
+                            <div class="mock-bar-item" style="height:45%;background:rgba(248,113,113,0.6)"></div>
+                            <div class="mock-bar-item" style="height:70%;background:rgba(59,130,246,0.6)"></div>
+                            <div class="mock-bar-item" style="height:55%;background:rgba(251,191,36,0.6)"></div>
+                            <div class="mock-bar-item" style="height:85%;background:rgba(59,130,246,0.75)"></div>
+                            <div class="mock-bar-item" style="height:40%;background:rgba(248,113,113,0.5)"></div>
+                        </div>
+                    </div>
+
+                    <div class="mock-prob-row">
+                        <div class="mock-prob-item">
+                            <span class="mock-prob-name">A. Domino Principle</span>
+                            <span class="mock-prob-rating" style="background:rgba(74,222,128,0.12);color:#4ade80">800</span>
+                            <span class="mock-verdict-ok">✓ AC</span>
+                        </div>
+                        <div class="mock-prob-item">
+                            <span class="mock-prob-name">B. Mahmoud and Ehab</span>
+                            <span class="mock-prob-rating" style="background:rgba(96,165,250,0.12);color:#60a5fa">1400</span>
+                            <span class="mock-verdict-ok">✓ AC</span>
+                        </div>
+                        <div class="mock-prob-item">
+                            <span class="mock-prob-name">C. XOR and Favorite Number</span>
+                            <span class="mock-prob-rating" style="background:rgba(167,139,250,0.12);color:#a78bfa">1900</span>
+                            <span class="mock-verdict-wa">✗ WA</span>
+                        </div>
+                    </div>
+
+            
+                    <div class="mock-gate-overlay">
+                        <div class="mock-gate-label">Create an account to see your own data</div>
+                        <a href="index1.html" class="mock-gate-btn">
+                            Register free
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="social-section">
+        <div class="container">
+            <div class="reveal" style="text-align:center;">
+                <span class="section-tag">All ranks welcome</span>
+                <h2 class="section-title">Useful from newbie to grandmaster</h2>
+                <p class="section-sub" style="margin:0 auto;">The analytics surface different signals depending on where you are on the ladder — there's always something actionable.</p>
+            </div>
+            <div class="rank-pills reveal-stagger">
+                <div class="rank-pill"><span class="rank-dot" style="background:#9ca3af"></span> Newbie</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#4ade80"></span> Pupil</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#2dd4bf"></span> Specialist</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#60a5fa"></span> Expert</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#c084fc"></span> Candidate Master</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#fbbf24"></span> Master</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#f87171"></span> Grandmaster</div>
+                <div class="rank-pill"><span class="rank-dot" style="background:#ef4444"></span> Legendary GM</div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="cta-section">
+        <div class="cta-orb"></div>
+        <div class="container">
+            <div class="cta-inner reveal">
+                <h2 class="cta-title">Ready to see what<br>your data says?</h2>
+                <p class="cta-sub">Register, verify your email, link your handle — and your analytics are live. Takes about two minutes.</p>
+                <div class="cta-btns">
+                    <a href="index1.html" class="btn-hero-primary">
+                        Create account
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="codeLogin.html" class="btn-hero-ghost">Log in</a>
+                </div>
+                <p class="cta-note">Free to use · No credit card · Powered by the Codeforces public API</p>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div>
+                    <a href="landing.html" class="nav-logo">
+                        <div class="nav-logo-mark">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/></svg>
+                        </div>
+                        <span class="nav-logo-text">CFF <span>Explorer</span></span>
+                    </a>
+                    <p class="footer-brand-desc">Codeforces analytics for competitive programmers. Built on the public Codeforces API.</p>
+                </div>
+
+                <div>
+                    <div class="footer-col-title">Product</div>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how">How it works</a></li>
+                        <li><a href="#preview">Dashboard preview</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col-title">Account</div>
+                    <ul class="footer-links">
+                        <li><a href="index1.html">Register</a></li>
+                        <li><a href="codeLogin.html">Log in</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col-title">Legal</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>© 2025 CFF Explorer. All rights reserved.</span>
+                <span>Built on the Codeforces public API · Not affiliated with Codeforces</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 30);
+    }, { passive: true });
+
+
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                revealObs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObs.observe(el));
+
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>
