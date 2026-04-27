@@ -712,7 +712,7 @@
    
     (function checkAuth() {
         if (!getAuthToken()) {
-            window.location.href = 'login.html';
+            window.location.href = 'codeLogin.html';
         }
     })();
 
@@ -818,7 +818,7 @@
         if (status === 401) {
 
             localStorage.removeItem('accessToken');
-            setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+            setTimeout(() => { window.location.href = 'codeLogin.html'; }, 1500);
             return { type: 'error', title: 'Session Expired', sub: 'Your session has expired. Redirecting to login…' };
         }
 
