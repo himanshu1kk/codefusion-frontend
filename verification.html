@@ -728,71 +728,61 @@
         otpExpiredAt: null,        // Date of expiry for countdown
     };
 
-    async function safeFetchJson(url, options = {}) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+   async function safeFetchJson(url, options = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-        
-        const token = getAuthToken();
-        const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const token = getAuthToken();
+    const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-        try {
-            const res = await fetch(url, {
-                ...options,
-                signal: controller.signal,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...authHeaders,
-                    ...(options.headers || {}),
-                },
-            });
-
-            clearTimeout(timeoutId);
-
-            let body;
-            try {
-                body = await res.json();
-            } catch {
-                body = null;
-            }
-
-            if (!res.ok) {
-            
-                const apiMsg = body?.message || body?.error || null;
-                const err = new Error(apiMsg || `HTTP ${res.status}`);
-                err.status = res.status;
-                err.apiBody = body;
-                throw err;
-            }
-
-            return body;
-
-        } catch (err) {
-            clearTimeout(timeoutId);
-
-            if (err.name === 'AbortError') {
-                const te = new Error('The request timed out. Please try again.');
-                te.type = 'timeout';
-                throw te;
-            }
-
-        
-            if (err.status) throw err;
-
-            const ne = new Error('Network error. Check your connection and try again.');
-            ne.type = 'network';
-            throw ne;
+    let res;
+    try {
+        res = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+                ...authHeaders,
+                ...(options.headers || {}),
+            },
+        });
+        clearTimeout(timeoutId);
+    } catch (err) {
+        clearTimeout(timeoutId);
+        // Only genuine network/abort errors land here now
+        if (err.name === 'AbortError') {
+            const te = new Error('The request timed out. Please try again.');
+            te.type = 'timeout';
+            throw te;
         }
+        const ne = new Error('Network error. Check your connection and try again.');
+        ne.type = 'network';
+        throw ne;
     }
 
+    // Parse body outside try/catch so API errors aren't swallowed
+    let body;
+    try { body = await res.json(); } catch { body = null; }
+
+    if (!res.ok) {
+        const apiMsg = body?.message || body?.error || null;
+        const err = new Error(apiMsg || `HTTP ${res.status}`);
+        err.status = res.status;
+        err.apiBody = body;
+        throw err;
+    }
+
+    return body;
+} 
 
     function mapApiError(err) {
         const msg = err.message || '';
         const status = err.status || 0;
 
-
-        if (msg.includes('expired') || msg.includes('not found') || msg.toLowerCase().includes('otp expired'))
-            return { type: 'warning', title: 'Code Expired', sub: 'Your OTP has expired. Please request a new one.' };
+        if (msg.includes('Invalid Codeforces handle') || msg.includes('User not found'))
+            return { type: 'error', title: 'Handle Not Found', sub: 'No Codeforces account found with that username.' };
+        if (msg.includes('OTP expired or not found') || msg.toLowerCase().includes('otp expired'))
+    return { type: 'warning', title: 'Code Expired', sub: 'Your OTP has expired. Please request a new one.' };
 
         if (msg.includes('Too many attempts') || msg.toLowerCase().includes('attempts exceeded'))
             return { type: 'error', title: 'Too Many Attempts', sub: 'You\'ve exceeded the maximum retries. Request a new code.' };
@@ -803,8 +793,7 @@
         if (msg.includes('Handle already linked'))
             return { type: 'warning', title: 'Already Linked', sub: 'This Codeforces handle is already connected to an account.' };
 
-        if (msg.includes('Invalid Codeforces handle'))
-            return { type: 'error', title: 'Handle Not Found', sub: 'No Codeforces account found with that username.' };
+       
 
         if (msg.includes('email') || msg.includes('fetch email'))
             return { type: 'warning', title: 'Email Unavailable', sub: 'No email found on your Codeforces profile. Please add one at codeforces.com.' };
