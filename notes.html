@@ -1,406 +1,745 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal | CFF Explorer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --accent-primary: #38bdf8;
-            --accent-secondary: #818cf8;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Journal | CFF Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-deep: #0b0f17;
+      --surface-glass: rgba(18, 24, 38, 0.75);
+      --surface-elevated: rgba(22, 28, 44, 0.9);
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(56, 189, 248, 0.3);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-sky: #38bdf8;
+      --accent-indigo: #818cf8;
+      --accent-emerald: #10b981;
+      --danger: #ef4444;
+      --amber: #f59e0b;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-glow: 0 20px 35px -12px rgba(0,0,0,0.5);
+      --backdrop-blur: blur(18px);
+      --transition-smooth: 0.25s cubic-bezier(0.2, 0.0, 0, 1.0);
+    }
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #131c2e, #05070b 80%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0 1.5rem 1.5rem;
+      backdrop-filter: blur(2px);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        /* --- BACKGROUND --- */
-        .background-matrix {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.05) 0%, transparent 30%),
-                radial-gradient(circle at 20% 90%, rgba(129, 140, 248, 0.05) 0%, transparent 30%);
-        }
+    .background-ambient {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: radial-gradient(ellipse at 70% 20%, rgba(56,189,248,0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 30% 80%, rgba(129,140,248,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
 
-        /* --- NAVBAR --- */
-        nav {
-            padding: 20px 40px;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.3rem 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-soft);
+      backdrop-filter: var(--backdrop-blur);
+      background: rgba(8, 12, 22, 0.6);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
 
-        .brand { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: var(--text-main); }
-        .brand span { color: var(--accent-secondary); }
-        .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
-        .nav-link:hover { color: var(--accent-primary); }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      text-decoration: none;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .brand span {
+      background: linear-gradient(135deg, var(--accent-sky), var(--accent-indigo));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
 
-        /* --- LAYOUT --- */
-        .container {
-            flex: 1; display: flex; gap: 30px; padding: 40px;
-            max-width: 1600px; margin: 0 auto; width: 100%; height: 100%;
-        }
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.03);
+      transition: var(--transition-smooth);
+    }
+    .nav-link:hover {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
 
-        /* --- LEFT PANEL (METADATA) --- */
-        .meta-panel {
-            width: 350px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;
-            overflow-y: auto;
-        }
+    .container {
+      display: flex;
+      gap: 2rem;
+      flex: 1;
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
 
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
-        h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: var(--accent-primary); }
+    .meta-panel {
+      width: 340px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
 
-        .input-group { margin-bottom: 15px; }
-        .input-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block; }
-        input {
-            width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
-            color: #fff; padding: 12px; border-radius: 8px; outline: none; font-family: 'JetBrains Mono', monospace;
-            transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+    .glass-card {
+      background: var(--surface-glass);
+      backdrop-filter: var(--backdrop-blur);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-glow);
+      transition: var(--transition-smooth);
+    }
 
-        .btn-primary {
-            width: 100%; background: linear-gradient(135deg, var(--accent-secondary), #4f46e5);
-            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    h3 {
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: -0.2px;
+      margin-bottom: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-primary);
+    }
 
-        #problemInfo { display: none; flex-direction: column; gap: 12px; }
-        #problemInfo.active { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .input-group {
+      margin-bottom: 1.3rem;
+    }
+    .input-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    input {
+      width: 100%;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      color: white;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+    input:focus {
+      border-color: var(--accent-sky);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+    }
 
-        .info-row { display: flex; justify-content: space-between; align-items: center; }
-        .info-label { color: var(--text-muted); font-size: 0.9rem; }
-        .info-value { font-weight: 700; }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.85rem;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: 0.2s;
+      box-shadow: 0 8px 18px -6px rgba(79,70,229,0.4);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.15);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
-        .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-        .tag { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); }
+    #problemInfo {
+      display: none;
+    }
+    #problemInfo.active {
+      display: block;
+      animation: fadeSlide 0.25s ease;
+    }
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
-        .cf-link {
-            display: block; margin-top: 15px; text-align: center; font-size: 0.9rem; color: var(--accent-primary);
-            text-decoration: none; border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px; border-radius: 6px; transition: 0.2s;
-        }
-        .cf-link:hover { background: rgba(56, 189, 248, 0.1); }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.6rem;
+    }
+    .info-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .info-value {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.8rem 0 1rem;
+    }
+    .tag {
+      background: rgba(255,255,255,0.05);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .cf-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--accent-sky);
+      text-decoration: none;
+      font-weight: 500;
+      border: 1px solid rgba(56,189,248,0.25);
+      padding: 0.65rem;
+      border-radius: 12px;
+      transition: var(--transition-smooth);
+    }
+    .cf-link:hover {
+      background: rgba(56,189,248,0.08);
+    }
 
-        /* --- RIGHT PANEL (EDITOR) --- */
-        .editor-panel {
-            flex: 1; display: flex; flex-direction: column; background: var(--card-bg);
-            border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;
-        }
+    .editor-panel {
+      flex: 1;
+      background: var(--surface-elevated);
+      backdrop-filter: var(--backdrop-blur);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    .editor-toolbar {
+      padding: 1rem 1.5rem;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .btn-save {
+      background: var(--accent-emerald);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.6rem 1.4rem;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+    .btn-save:disabled {
+      background: #334155;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+    .status-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      resize: none;
+      outline: none;
+      width: 100%;
+    }
+    textarea::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+    .counter {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
 
-        .editor-toolbar {
-            padding: 15px 25px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
+    #toast-container {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 9999;
+    }
+    .toast {
+      padding: 0.9rem 1.5rem;
+      border-radius: 14px;
+      font-weight: 500;
+      backdrop-filter: blur(20px);
+      background: rgba(20, 25, 35, 0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: slideInToast 0.3s ease;
+    }
+    .toast.success { border-left: 4px solid var(--accent-emerald); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    @keyframes slideInToast {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
-        .toolbar-left { display: flex; align-items: center; gap: 15px; }
-        
-        .btn-save {
-            background-color: var(--success-color); color: #fff; font-weight: 600;
-            border: none; padding: 8px 24px; border-radius: 6px; cursor: pointer;
-            font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; gap: 8px;
-        }
-        .btn-save:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-save:disabled { background-color: #334155; color: #94a3b8; cursor: not-allowed; }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
 
-        .status-indicator { font-size: 0.85rem; color: var(--text-muted); }
-
-        textarea {
-            flex: 1; background: transparent; border: none; color: var(--text-main);
-            padding: 25px; font-size: 1rem; line-height: 1.6; resize: none; outline: none;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        textarea::placeholder { color: rgba(255,255,255,0.2); }
-
-        /* --- TOAST NOTIFICATIONS --- */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
-        .toast {
-            padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: slideIn 0.3s ease forwards;
-        }
-        .toast.success { background-color: var(--success-color); }
-        .toast.error { background-color: var(--error-color); }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-
-        @media (max-width: 900px) {
-            body { height: auto; overflow: auto; }
-            .container { flex-direction: column; padding: 20px; }
-            .meta-panel { width: 100%; }
-            .editor-panel { min-height: 60vh; }
-        }
-    </style>
+    @media (max-width: 850px) {
+      .container {
+        flex-direction: column;
+      }
+      .meta-panel {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
+<div class="background-ambient"></div>
 
-    <div class="background-matrix"></div>
+<nav>
+  <a href="/" class="brand"><span>&lt;/&gt;</span> CFF.Journal</a>
+  <a href="codeLogin.html" class="nav-link" id="loginLink">Login</a>
+</nav>
 
-    <nav>
-        <a href="/" class="brand"><span>&lt;/&gt;</span> CFF.Journal</a>
-        <a href="/" class="nav-link">← Back to Practice</a>
-    </nav>
-
-    <div class="container">
-        
-        <div class="meta-panel">
-            <div class="card">
-                <h3>Select Problem</h3>
-                <div class="input-group">
-                    <label class="input-label">Contest ID</label>
-                    <input type="number" id="inpContestId" placeholder="e.g. 1352">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Problem Index</label>
-                    <input type="text" id="inpIndex" placeholder="e.g. C">
-                </div>
-                <button id="btnFetch" class="btn-primary">FETCH DETAILS</button>
-            </div>
-
-            <div id="problemInfo" class="card">
-                <div class="info-row"><span class="info-label">Problem</span></div>
-                <div class="info-value" id="dispName" style="font-size: 1.1rem; margin-bottom: 5px;">-</div>
-
-                <div class="info-row">
-                    <span class="info-label">Rating</span>
-                    <span class="info-value" id="dispRating">-</span>
-                </div>
-
-                <div class="tag-cloud" id="dispTags"></div>
-                <a href="#" target="_blank" id="dispLink" class="cf-link">Open in Codeforces ↗</a>
-            </div>
-        </div>
-
-        <div class="editor-panel">
-            <div class="editor-toolbar">
-                <div class="toolbar-left">
-                    <span style="font-weight:600; color:var(--text-main)">Notes & Observations</span>
-                    <span class="status-indicator" id="saveStatusText">Waiting for problem...</span>
-                </div>
-                <button id="btnSave" class="btn-save" disabled>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    Save Note
-                </button>
-            </div>
-            <textarea id="notesArea" placeholder="Write your logic, edge cases, and time complexity analysis here..." disabled></textarea>
-        </div>
+<div class="container">
+  <div class="meta-panel">
+    <div class="glass-card">
+      <h3>🔍 Problem Lookup</h3>
+      <div class="input-group">
+        <label class="input-label">Contest ID</label>
+        <input type="number" id="inpContestId" placeholder="1352">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Problem Index</label>
+        <input type="text" id="inpIndex" placeholder="C" maxlength="2">
+      </div>
+      <button id="btnFetch" class="btn-primary">
+        <span>📡</span> Fetch Details
+      </button>
     </div>
 
-    <div id="toast-container"></div>
+    <div id="problemInfo" class="glass-card">
+      <div id="metaContent"></div>
+      <a href="#" target="_blank" id="dispLink" class="cf-link">Open in Codeforces ↗</a>
+    </div>
+  </div>
 
-    <script>
-        // --- CONFIGURATION ---
-const API_BASE_URL = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf/notes';
-        // --- DOM ELEMENTS ---
-        const inpContestId = document.getElementById('inpContestId');
-        const inpIndex = document.getElementById('inpIndex');
-        const btnFetch = document.getElementById('btnFetch');
-        const btnSave = document.getElementById('btnSave');
-        
-        const problemInfo = document.getElementById('problemInfo');
-        const dispName = document.getElementById('dispName');
-        const dispRating = document.getElementById('dispRating');
-        const dispTags = document.getElementById('dispTags');
-        const dispLink = document.getElementById('dispLink');
+  <div class="editor-panel">
+    <div class="editor-toolbar">
+      <div class="toolbar-left">
+        <span style="font-weight:600;">📝 Notes</span>
+        <span class="status-text" id="saveStatusText">⚪ Not loaded</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span class="counter" id="charCounter">0</span>
+        <button id="btnSave" class="btn-save" disabled>
+          <span>💾</span> Save
+        </button>
+      </div>
+    </div>
+    <textarea id="notesArea" placeholder="Start writing your approach..." disabled></textarea>
+  </div>
+</div>
 
-        const notesArea = document.getElementById('notesArea');
-        const saveStatusText = document.getElementById('saveStatusText');
-        const toastContainer = document.getElementById('toast-container');
+<div id="toast-container"></div>
 
-        let currentContestId = null;
-        let currentIndex = null;
+<script>
+  (function() {
+    // ---------- CONSTANTS ----------
+    const API_BASE = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf';
+    const PROBLEM_META_URL = `${API_BASE}/problems/meta`;
+    const NOTES_SAVE_URL = `${API_BASE}/notes/save`;
+    const NOTES_GET_URL = (contestId, index) => `${API_BASE}/notes/${contestId}/${index}`;
+    const LOGIN_PAGE = "./codeLogin.html";
 
-        // --- TOAST UTILITY ---
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerText = message;
-            toastContainer.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+    // Error codes mapping
+    const ERROR_MESSAGES = {
+      4000: 'Invalid contest ID or problem index.',
+      4001: 'Session expired. Please login again.',
+      4004: 'User account not found.',
+      4005: 'NOTE_NOT_FOUND',
+      4008: 'Codeforces API unavailable.',
+      4010: 'Invalid email format.',
+      4011: 'Email already verified.',
+      4012: 'OTP expired.',
+      4013: 'OTP attempt limit exceeded.',
+      4014: 'OTP record missing.',
+      4015: 'Invalid OTP code.',
+      5000: 'Internal server error. Try again later.'
+    };
+
+    // DOM elements
+    const inpContestId = document.getElementById('inpContestId');
+    const inpIndex = document.getElementById('inpIndex');
+    const btnFetch = document.getElementById('btnFetch');
+    const btnSave = document.getElementById('btnSave');
+    const problemInfo = document.getElementById('problemInfo');
+    const metaContent = document.getElementById('metaContent');
+    const dispLink = document.getElementById('dispLink');
+    const notesArea = document.getElementById('notesArea');
+    const saveStatusText = document.getElementById('saveStatusText');
+    const charCounter = document.getElementById('charCounter');
+    const toastContainer = document.getElementById('toast-container');
+    const loginLink = document.getElementById('loginLink');
+
+    let currentContestId = null;
+    let currentIndex = null;
+    let originalNoteContent = '';
+
+    // ---------- UTILS ----------
+    function getToken() {
+    return localStorage.getItem("accessToken");
+}
+
+function setToken(token) {
+    if (token)
+        localStorage.setItem("accessToken", token);
+    else
+        localStorage.removeItem("accessToken");
+}
+
+    function isAuthenticated() {
+      return !!getToken();
+    }
+
+    function updateAuthUI() {
+      const loggedIn = isAuthenticated();
+      loginLink.textContent = loggedIn ? 'Logout' : 'Login';
+      loginLink.href = loggedIn ? '#' : LOGIN_PAGE;
+      if (!loggedIn) {
+        btnSave.disabled = true;
+        notesArea.disabled = true;
+        saveStatusText.innerText = '🔒 Login required';
+      }
+    }
+
+    loginLink.addEventListener('click', (e) => {
+      if (isAuthenticated()) {
+        e.preventDefault();
+        setToken(null);
+        showToast('Logged out', 'success');
+        disableNotes('Login required');
+      }
+    });
+
+    function redirectToLogin() {
+      window.location.href = LOGIN_PAGE;
+    }
+
+    async function apiRequest(url, options = {}) {
+      const token = getToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers
+      };
+
+      const response = await fetch(url, { ...options, headers });
+      
+      if (response.status === 401) {
+        setToken(null);
+        showToast('Session expired. Redirecting...', 'error');
+        setTimeout(() => redirectToLogin(), 1500);
+        throw new Error('Unauthorized');
+      }
+
+      const contentType = response.headers.get('content-type');
+      let data = null;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      }
+
+      if (!response.ok) {
+        const apiCode = data?.apiResponseCode;
+        const message = data?.message || 'Request failed';
+        throw { apiCode, message, status: response.status };
+      }
+
+      return data;
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${message}`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(30px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function normalizeIndex(raw) {
+      return raw.trim().toUpperCase();
+    }
+
+    function updateCharCount() {
+      const len = notesArea.value.length;
+      charCounter.innerText = `${len} chars`;
+    }
+
+    function setSavingState(disabled, text = '💾 Save') {
+      btnSave.disabled = disabled;
+      btnSave.innerHTML = disabled ? '<span>⏳</span> Saving...' : text;
+    }
+
+    function disableNotes(reason = '') {
+      notesArea.disabled = true;
+      btnSave.disabled = true;
+      saveStatusText.innerText = reason || '🔒 Unavailable';
+    }
+
+    function enableNotes(status = 'Ready') {
+      if (!isAuthenticated()) {
+        disableNotes('Login required');
+        return;
+      }
+      notesArea.disabled = false;
+      btnSave.disabled = false;
+      saveStatusText.innerText = status;
+    }
+
+    // ---------- PROBLEM METADATA ----------
+    async function fetchProblemMeta(contestId, index) {
+      const url = `${PROBLEM_META_URL}?contestId=${contestId}&index=${encodeURIComponent(index)}`;
+      return await apiRequest(url);
+    }
+
+    function renderProblemMeta(problem) {
+      const rating = problem.rating || 'Unrated';
+      let ratingColor = 'var(--text-muted)';
+      if (problem.rating >= 2000) ratingColor = '#f59e0b';
+      else if (problem.rating >= 1600) ratingColor = '#818cf8';
+      else if (problem.rating) ratingColor = '#10b981';
+
+      const tagsHtml = (problem.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      
+      metaContent.innerHTML = `
+        <div style="margin-bottom:0.8rem; font-weight:700; font-size:1.2rem;">${problem.name}</div>
+        <div class="info-row"><span class="info-label">Rating</span><span class="info-value" style="color:${ratingColor}">${rating}</span></div>
+        <div class="tag-cloud">${tagsHtml || '<span class="tag">none</span>'}</div>
+      `;
+      dispLink.href = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
+      problemInfo.classList.add('active');
+    }
+
+    // ---------- NOTES OPERATIONS ----------
+    async function loadNote(contestId, index) {
+      const url = NOTES_GET_URL(contestId, index);
+      return await apiRequest(url);
+    }
+
+    async function saveNote(contestId, index, content) {
+      const payload = {
+        contestId: parseInt(contestId),
+        index: index,
+        notes: content
+      };
+      await apiRequest(NOTES_SAVE_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+    }
+
+    // ---------- MAIN HANDLERS ----------
+    btnFetch.addEventListener('click', async () => {
+      if (!isAuthenticated()) {
+        showToast('Please login to continue', 'error');
+        redirectToLogin();
+        return;
+      }
+
+      const rawCid = inpContestId.value.trim();
+      const rawIdx = normalizeIndex(inpIndex.value);
+      
+      if (!rawCid || !rawIdx) {
+        showToast('Enter contest ID and problem index', 'error');
+        return;
+      }
+
+      btnFetch.disabled = true;
+      btnFetch.innerHTML = '<span>⏳</span> Loading...';
+      problemInfo.classList.remove('active');
+      notesArea.value = '';
+      disableNotes('Fetching...');
+
+      try {
+        const meta = await fetchProblemMeta(rawCid, rawIdx);
+        currentContestId = meta.contestId;
+        currentIndex = meta.index;
+        renderProblemMeta(meta);
+
+        // Load note
+        try {
+          const note = await loadNote(currentContestId, currentIndex);
+          notesArea.value = note.notes || '';
+          originalNoteContent = notesArea.value;
+          enableNotes('📄 Note loaded');
+          saveStatusText.innerText = '✅ Synced';
+        } catch (err) {
+          if (err?.apiCode === 4005 || err?.message?.includes('not found')) {
+            notesArea.value = '';
+            originalNoteContent = '';
+            enableNotes('✨ New note');
+            saveStatusText.innerText = '📝 No notes yet';
+          } else {
+            throw err;
+          }
         }
+      } catch (err) {
+        const msg = err?.apiCode ? (ERROR_MESSAGES[err.apiCode] || err.message) : 'Failed to fetch problem';
+        showToast(msg, 'error');
+        disableNotes('Error');
+      } finally {
+        btnFetch.disabled = false;
+        btnFetch.innerHTML = '<span>📡</span> Fetch Details';
+        updateCharCount();
+      }
+    });
 
-        // --- 1. FETCH LOGIC ---
-        btnFetch.addEventListener('click', async () => {
-            const cid = inpContestId.value.trim();
-            const idx = inpIndex.value.trim().toUpperCase();
+    btnSave.addEventListener('click', async () => {
+      if (!currentContestId || !currentIndex || !isAuthenticated()) return;
 
-            if (!cid || !idx) {
-                showToast("Please enter both Contest ID and Problem Index", "error");
-                return;
-            }
+      const content = notesArea.value;
+      setSavingState(true);
+      
+      try {
+        await saveNote(currentContestId, currentIndex, content);
+        originalNoteContent = content;
+        saveStatusText.innerText = '💚 Saved';
+        showToast('Note saved', 'success');
+        setTimeout(() => {
+          if (saveStatusText.innerText === '💚 Saved') saveStatusText.innerText = '✅ Synced';
+        }, 2000);
+      } catch (err) {
+        const msg = err?.apiCode ? (ERROR_MESSAGES[err.apiCode] || err.message) : 'Save failed';
+        showToast(msg, 'error');
+        saveStatusText.innerText = '⚠️ Unsaved';
+      } finally {
+        setSavingState(false);
+      }
+    });
 
-            // UI State: Loading
-            btnFetch.innerText = "LOADING...";
-            btnFetch.disabled = true;
-            btnSave.disabled = true;
-            notesArea.disabled = true;
-            notesArea.value = ""; 
-            saveStatusText.innerText = "Fetching data...";
+    notesArea.addEventListener('input', () => {
+      updateCharCount();
+      if (notesArea.value !== originalNoteContent) {
+        saveStatusText.innerText = '🟡 Unsaved changes';
+      } else {
+        saveStatusText.innerText = '✅ Synced';
+      }
+    });
 
-            try {
-                // A. Fetch Metadata from Codeforces
-                const cfResponse = await fetch(`https://codeforces.com/api/contest.standings?contestId=${cid}&from=1&count=1`);
-                const cfData = await cfResponse.json();
+    // Ctrl+S shortcut
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (!btnSave.disabled && isAuthenticated()) btnSave.click();
+      }
+    });
 
-                if (cfData.status !== 'OK') throw new Error("Problem not found on Codeforces");
+    // Auto uppercase index
+    inpIndex.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+    });
 
-                const problem = cfData.result.problems.find(p => p.index === idx);
-                if (!problem) throw new Error(`Problem ${idx} not found in Contest ${cid}`);
+    // URL params autofill
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get('contestId');
+      const idx = params.get('index');
+      if (cid) inpContestId.value = cid;
+      if (idx) inpIndex.value = idx.toUpperCase();
+      if (cid && idx && isAuthenticated()) {
+        btnFetch.click();
+      }
+      updateAuthUI();
+      updateCharCount();
+    });
 
-                // Update UI
-                renderProblemData(problem);
-                currentContestId = cid;
-                currentIndex = idx;
-
-                // B. Fetch Existing Note from YOUR .NET Backend
-                try {
-                    const noteResponse = await fetch(`${API_BASE_URL}/${cid}/${idx}`);
-                    
-                    if (noteResponse.ok) {
-                        const noteData = await noteResponse.json();
-                        // Depending on your JSON serializer settings, it might be camelCase or PascalCase
-                        notesArea.value = noteData.notes || noteData.Notes || "";
-                        saveStatusText.innerText = "Loaded from Cloud";
-                    } else if (noteResponse.status === 404) {
-                        notesArea.value = ""; 
-                        saveStatusText.innerText = "New Note";
-                    } else {
-                        saveStatusText.innerText = "Failed to sync";
-                    }
-                } catch (backendErr) {
-                    console.error("Backend Error:", backendErr);
-                    saveStatusText.innerText = "Offline Mode";
-                    showToast("Could not connect to backend server.", "error");
-                }
-
-                // Enable Editor
-                btnSave.disabled = false;
-                notesArea.disabled = false;
-                notesArea.focus();
-
-            } catch (err) {
-                console.error(err);
-                showToast(err.message, "error");
-                problemInfo.classList.remove('active');
-                currentContestId = null;
-                saveStatusText.innerText = "Error";
-            } finally {
-                btnFetch.innerText = "FETCH DETAILS";
-                btnFetch.disabled = false;
-            }
-        });
-
-        // --- 2. SAVE LOGIC ---
-        btnSave.addEventListener('click', async () => {
-            if (!currentContestId || !currentIndex) return;
-
-            const content = notesArea.value;
-            const originalText = btnSave.innerHTML;
-            
-            // UI Feedback
-            btnSave.innerHTML = `Saving...`;
-            btnSave.disabled = true;
-            saveStatusText.innerText = "Saving...";
-
-            try {
-                // Matches your C# CreateNoteDto exactly
-                const payload = {
-                    contestId: parseInt(currentContestId),
-                    index: currentIndex,
-                    notes: content      
-                };
-
-                const response = await fetch(API_BASE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) { // Handles the Ok() 200 response from C#
-                    saveStatusText.innerText = "All changes saved";
-                    showToast("Note saved successfully!");
-                    
-                    // Visual Success State for Button
-                    btnSave.style.backgroundColor = "var(--success-color)";
-                    btnSave.innerHTML = `✓ Saved`;
-                    setTimeout(() => {
-                        btnSave.style.backgroundColor = "";
-                        btnSave.innerHTML = originalText;
-                        btnSave.disabled = false;
-                    }, 2000);
-                } else {
-                    throw new Error("Server rejected request");
-                }
-            } catch (err) {
-                console.error(err);
-                showToast("Failed to save note.", "error");
-                saveStatusText.innerText = "Unsaved changes";
-                btnSave.innerHTML = originalText;
-                btnSave.disabled = false;
-            }
-        });
-
-        // --- RENDER HELPERS ---
-        function renderProblemData(problem) {
-            problemInfo.classList.add('active');
-            dispName.innerText = problem.name;
-            dispRating.innerText = problem.rating || "Unrated";
-            
-            const r = problem.rating;
-            if (!r) dispRating.style.color = 'var(--text-muted)';
-            else if (r >= 2000) dispRating.style.color = '#eab308';
-            else if (r >= 1600) dispRating.style.color = '#818cf8';
-            else dispRating.style.color = '#10b981';
-
-            dispTags.innerHTML = problem.tags.map(t => `<span class="tag">${t}</span>`).join('');
-            dispLink.href = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
-        }
-
-        // --- 3. AUTO FILL ---
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cId = urlParams.get('contestId');
-            const idx = urlParams.get('index');
-
-            if (cId && idx) {
-                inpContestId.value = cId;
-                inpIndex.value = idx;
-                btnFetch.click();
-            }
-        });
-
-        // Shortcut: Ctrl+S to save
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                if (!btnSave.disabled) btnSave.click();
-            }
-        });
-    </script>
+    // Initialize UI
+    updateAuthUI();
+  })();
+</script>
 </body>
 </html>

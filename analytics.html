@@ -17,6 +17,9 @@
             --col-strong: #00E676; /* Bright Green */
             --col-avg: #FFC107;    /* Amber */
             --col-weak: #FF5252;   /* Red */
+
+            /* Rating Distribution Accent */
+            --col-rating: #448AFF; /* Neon Blue */
             
             --glass: rgba(255, 255, 255, 0.03);
             --border: 1px solid rgba(255, 255, 255, 0.1);
@@ -138,6 +141,7 @@
         .nav-pill.strong:hover, .nav-pill.strong:active { border-color: var(--col-strong); color: var(--col-strong); }
         .nav-pill.avg:hover, .nav-pill.avg:active { border-color: var(--col-avg); color: var(--col-avg); }
         .nav-pill.weak:hover, .nav-pill.weak:active { border-color: var(--col-weak); color: var(--col-weak); }
+        .nav-pill.rating:hover, .nav-pill.rating:active { border-color: var(--col-rating); color: var(--col-rating); }
 
         /* --- Horizontal Sections --- */
         .category-section {
@@ -163,6 +167,7 @@
         .category-section.strong .section-header { border-color: var(--col-strong); color: var(--col-strong); }
         .category-section.avg .section-header { border-color: var(--col-avg); color: var(--col-avg); }
         .category-section.weak .section-header { border-color: var(--col-weak); color: var(--col-weak); }
+        .category-section.rating .section-header { border-color: var(--col-rating); color: var(--col-rating); }
 
         .section-subtitle { font-size: 0.9rem; opacity: 0.6; font-weight: 400; margin-left: 5px; letter-spacing: 0.5px; }
 
@@ -231,6 +236,102 @@
             padding-top: 15px;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
+
+        /* --- Rating Distribution Section --- */
+        .rating-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .rating-summary-card {
+            background: var(--bg-card);
+            border: var(--border);
+            border-top: 1px solid rgba(68, 138, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .rating-summary-card:hover {
+            border-color: rgba(68, 138, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .rating-summary-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .rating-summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--col-rating);
+            line-height: 1.1;
+        }
+
+        .rating-summary-value .unit {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .rating-chart-card {
+            background: var(--bg-card);
+            border: var(--border);
+            border-top: 1px solid rgba(68, 138, 255, 0.3);
+            border-radius: 16px;
+            padding: 25px 20px 15px;
+        }
+
+        .rating-chart-wrapper {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .rating-empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: var(--border);
+            border-radius: 16px;
+            font-size: 0.95rem;
+        }
+        .rating-empty-state .icon { font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5; }
+
+        .rating-skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .skeleton-card {
+            background: var(--bg-card);
+            border: var(--border);
+            border-radius: 16px;
+            height: 88px;
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+            animation: shimmer 1.4s infinite;
+        }
+        @keyframes shimmer { to { left: 100%; } }
 
         /* --- Modal (Detail View) --- */
         .modal-overlay {
@@ -340,6 +441,12 @@
             
             .stats-grid { gap: 10px; }
             .stat-value { font-size: 1.3rem; }
+
+            .rating-summary-grid, .rating-skeleton-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rating-chart-wrapper { height: 260px; }
         }
     </style>
 </head>
@@ -372,6 +479,9 @@
 
         <div id="contentArea">
             <div class="quick-nav">
+                <div class="nav-pill rating" onclick="scrollToSection('sec-rating')">
+                    <span>📊</span> Rating
+                </div>
                 <div class="nav-pill strong" onclick="scrollToSection('sec-strong')">
                     <span>⚡</span> Strong
                 </div>
@@ -382,6 +492,51 @@
                     <span>💀</span> Weak
                 </div>
             </div>
+
+            <!-- ============ NEW: Solved Problems by Rating ============ -->
+            <div class="category-section rating" id="sec-rating">
+                <div class="section-header">
+                    <span>📊 Solved Problems by Rating</span>
+                </div>
+
+                <!-- Loading skeleton, shown while rating-distribution is in flight -->
+                <div id="ratingSkeleton" class="rating-skeleton-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+
+                <!-- Actual content, hidden until data is ready -->
+                <div id="ratingContent" class="hidden">
+                    <div class="rating-summary-grid">
+                        <div class="rating-summary-card">
+                            <span class="rating-summary-label">Highest Solved Rating</span>
+                            <span class="rating-summary-value" id="rHighest">—</span>
+                        </div>
+                        <div class="rating-summary-card">
+                            <span class="rating-summary-label">Most Solved Rating</span>
+                            <span class="rating-summary-value" id="rMostSolved">—</span>
+                        </div>
+                        <div class="rating-summary-card">
+                            <span class="rating-summary-label">Total Unique Solved</span>
+                            <span class="rating-summary-value" id="rTotalSolved">—</span>
+                        </div>
+                    </div>
+
+                    <div class="rating-chart-card">
+                        <div class="rating-chart-wrapper">
+                            <canvas id="ratingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Friendly empty/error state if the API fails, never blocks the rest of the page -->
+                <div id="ratingEmptyState" class="rating-empty-state hidden">
+                    <span class="icon">📭</span>
+                    <div>Rating distribution isn't available right now.</div>
+                </div>
+            </div>
+            <!-- ============ END: Solved Problems by Rating ============ -->
 
             <div class="category-section strong" id="sec-strong">
                 <div class="section-header">
@@ -459,6 +614,7 @@
    <script>
     const API_BASE_URL = 'https://codefusion-backend-tzj4.onrender.com/api/v0.1/cf/analytics/user/';
     let currentChart = null;
+    let ratingChartInstance = null;
 
     const urlParams = new URLSearchParams(window.location.search);
     const handle = urlParams.get('handle') || 'tourist';
@@ -466,7 +622,9 @@
     document.getElementById('displayHandle').innerText = `Analyzing...`;
     document.getElementById('handleInput').value = handle;
 
+    // Fetch both independently - one failing must never break the other.
     fetchData(handle);
+    fetchRatingDistribution(handle);
 
     document.getElementById('handleInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
@@ -525,6 +683,140 @@
             showError(`<div class="error-title">Network Error</div>Could not connect to server.`);
         }
     }
+
+    // ============ NEW: Rating Distribution fetch + render ============
+    async function fetchRatingDistribution(user) {
+        const skeleton = document.getElementById('ratingSkeleton');
+        const content = document.getElementById('ratingContent');
+        const emptyState = document.getElementById('ratingEmptyState');
+
+        // Reset state on every fetch (e.g. when handle changes)
+        skeleton.classList.remove('hidden');
+        content.classList.add('hidden');
+        emptyState.classList.add('hidden');
+
+        try {
+            const targetUrl = `${API_BASE_URL}${user}/rating-distribution?limit=500`;
+            const res = await fetch(targetUrl);
+
+            if (!res.ok) {
+                throw new Error(`Request failed with status ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('Empty rating distribution');
+            }
+
+            renderRatingDistribution(data);
+
+            skeleton.classList.add('hidden');
+            content.classList.remove('hidden');
+        }
+        catch (err) {
+            // Never let this break the rest of the page - just show a friendly empty state.
+            console.error('Rating distribution unavailable:', err);
+            skeleton.classList.add('hidden');
+            content.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+    }
+
+    function renderRatingDistribution(data) {
+        // Sort by rating ascending so the chart reads left -> right correctly,
+        // regardless of the order the backend returns.
+        const sorted = [...data].sort((a, b) => a.rating - b.rating);
+
+        const highestRating = sorted[sorted.length - 1].rating;
+
+        const mostSolvedEntry = sorted.reduce(
+            (max, entry) => (entry.solvedCount > max.solvedCount ? entry : max),
+            sorted[0]
+        );
+
+        const totalSolved = sorted.reduce((sum, entry) => sum + entry.solvedCount, 0);
+
+        document.getElementById('rHighest').innerHTML = `${highestRating}`;
+        document.getElementById('rMostSolved').innerHTML = `${mostSolvedEntry.rating}`;
+        document.getElementById('rTotalSolved').innerHTML = `${totalSolved}`;
+
+        renderRatingChart(sorted);
+    }
+
+    function renderRatingChart(sorted) {
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        if (ratingChartInstance) ratingChartInstance.destroy();
+
+        const labels = sorted.map(d => d.rating);
+        const values = sorted.map(d => d.solvedCount);
+
+        // Subtle gradient bars to match the glassmorphism / neon aesthetic
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(68, 138, 255, 0.9)');
+        gradient.addColorStop(1, 'rgba(68, 138, 255, 0.25)');
+
+        ratingChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Solved',
+                    data: values,
+                    backgroundColor: gradient,
+                    hoverBackgroundColor: '#448AFF',
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    maxBarThickness: 36
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#151515',
+                        borderColor: 'rgba(68, 138, 255, 0.4)',
+                        borderWidth: 1,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        titleFont: { family: 'Space Grotesk', size: 13, weight: '600' },
+                        bodyFont: { family: 'Space Grotesk', size: 12 },
+                        displayColors: false,
+                        callbacks: {
+                            title: (items) => `Rating: ${items[0].label}`,
+                            label: (item) => `Solved: ${item.formattedValue}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#888888',
+                            font: { family: 'Space Grotesk', size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: {
+                            color: '#888888',
+                            font: { family: 'Space Grotesk', size: 11 },
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+    // ============ END: Rating Distribution fetch + render ============
 
     function showError(htmlMsg) {
         const errorArea = document.getElementById('errorArea');
