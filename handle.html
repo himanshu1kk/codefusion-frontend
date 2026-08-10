@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CFF Explorer | Enter the Matrix</title>
+    <title>CFF Explorer | Analyze Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -281,14 +281,14 @@
 
     <div class="container">
         <h1>CFF Explorer</h1>
-        <p class="subtitle">Enter any Handle of CodeForces</p>
+        <p class="subtitle">Enter a Codeforces handle to view profile analytics.</p>
 
         <div class="input-wrapper">
-            <input type="text" id="handleInput" placeholder="Enter Codeforces Handle..." autocomplete="off">
+            <input type="text" id="handleInput" placeholder="Codeforces handle" autocomplete="off">
         </div>
 
         <button id="searchBtn">
-            <span>Analyze Profile</span> 🚀
+            <span>Analyze Profile</span>
         </button>
 
         <div id="feedback" class="feedback-message"></div>
@@ -347,7 +347,7 @@
             if (errorData?.apiResponseCode === 4004) {
                 feedback.innerHTML = `
                     <span class="error-text">User <strong>"${handle}"</strong> not found.</span><br>
-                    <a href="https://codeforces.com/register" target="_blank" class="create-account-link">Create Account ON Codeforces →</a>
+                    <a href="https://codeforces.com/register" target="_blank" class="create-account-link">Create a Codeforces account →</a>
                 `;
                 feedback.style.opacity = '1';
                 input.classList.add('shake');
@@ -361,7 +361,7 @@
         } finally {
             if (!document.querySelector('.container').style.opacity) {
                 btn.disabled = false;
-                btn.innerHTML = '<span>Analyze Profile</span> 🚀';
+                btn.innerHTML = '<span>Analyze Profile</span>';
             }
         }
     }
@@ -372,7 +372,7 @@
         input.classList.add('shake');
         
         btn.disabled = false;
-        btn.innerHTML = '<span>Analyze Profile</span> 🚀';
+        btn.innerHTML = '<span>Analyze Profile</span>';
     }
     </script>
 

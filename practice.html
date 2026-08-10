@@ -410,12 +410,12 @@
                 <div id="validationMsg" class="error-msg"></div>
             </div>
 
-            <button class="btn-apply" id="applyBtn">INITIALIZE SEARCH</button>
+            <button class="btn-apply" id="applyBtn">Search Problems</button>
         </aside>
 
         <main>
             <div class="results-header">
-                <h2>System <strong>Results</strong></h2>
+                <h2>Problem <strong>Results</strong></h2>
                 <div style="color: var(--text-muted); font-size: 0.9rem;">
                     Total: <span id="totalCount">0</span> problems
                 </div>
@@ -510,7 +510,7 @@
                     <h3 style="color: var(--accent-primary); font-size: 1.5rem; margin-bottom: 10px;">Ready to Practice?</h3>
                     <p style="color: var(--text-muted); max-width: 400px; line-height: 1.6;">
                         Select a category and difficulty range, then click 
-                        <strong style="color: var(--text-main)">Initialize Search</strong>.
+                        <strong style="color: var(--text-main)">Search Problems</strong>.
                     </p>
                 </div>
             `;
@@ -524,7 +524,7 @@
             grid.innerHTML = `
                 <div class="state-message">
                     <div class="spinner-large"></div>
-                    <p style="color: var(--accent-primary)">Accessing Data Archives...</p>
+                    <p style="color: var(--accent-primary)">Loading problems...</p>
                 </div>
             `;
             applyBtn.disabled = true;
@@ -562,7 +562,7 @@
             } catch (err) {
                 grid.innerHTML = `
                     <div class="state-message">
-                        <h3 style="color: var(--error-color); margin-bottom: 10px;">System Failure</h3>
+                        <h3 style="color: var(--error-color); margin-bottom: 10px;">Unable to load problems</h3>
                         <p style="color: var(--text-muted)">${err.message}</p>
                     </div>
                 `;
@@ -583,7 +583,7 @@
             if (!items || items.length === 0) {
                 grid.innerHTML = `
                     <div class="state-message">
-                        <h3 style="color: var(--text-muted);">Void Sector</h3>
+                        <h3 style="color: var(--text-muted);">No matching problems</h3>
                         <p style="color: #64748b">No problems found.</p>
                     </div>
                 `;
